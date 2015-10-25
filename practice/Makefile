@@ -6,11 +6,11 @@ PROGS =	practice01 \
 		practice05 \
 		practice06 \
 		practice07 \
-		raspi_gpo \
 
 all: $(PROGS)
+	gcc -Wall -O1 ../gpio/raspi_gpo.c -o raspi_gpo
 
 clean:
 	rm -f $(PROGS)
+	rm -f raspi_gpo a.out
 	rm -f data.csv
-	rm -f a.out
