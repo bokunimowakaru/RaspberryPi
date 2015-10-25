@@ -1,0 +1,118 @@
+このファイルは、コピー&ペースト機能を使って本書のコマンドライン入力を
+簡略化したい場合にご利用ください。
+
+							   Copyright (c) 2015 Wataru KUNINO
+							   http://www.geocities.jp/bokunimowakaru/
+
+
+■ 第１章	Raspberry Piの使い方
+
+SDフォーマッター
+	https://www.sdcard.org/jp/downloads/
+
+NOOBS
+	https://www.raspberrypi.org/downloads/NOOBS/
+
+フォントのインストール
+	sudo apt-get install ttf-kochi-gothic
+	sudo apt-get install fonts-takao
+
+Raspbianのシャットダウン
+	sudo shutdown now
+
+オフィスソフトLibreOfficeのインストール
+	sudo apt-get install libreoffice
+
+Sambaのインストール
+	sudo apt-get install samba
+	sudo leafpad /etc/samba/smb.conf &
+	sudo pdbedit -a pi
+	sudo /etc/init.d/samba restart
+
+
+■ 第２章	Linux用コマンドラインシェル：bashの使い方
+
+Text Editorのインストール
+	sudo apt-get install leafpad
+
+
+■ 第３章	Linux上でC言語プログラミング演習
+
+練習用プログラムのダウンロード
+	git clone https://github.com/bokunimowakaru/RaspberryPi.git
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
