@@ -2,8 +2,9 @@
 #include <stdlib.h>             // 型変換(atoi)を使用
 
 int main(){
-    FILE *fp;                   // ファイル出力用の変数fp
-    char gpio[]="/sys/class/gpio/gpio4/value";
+    FILE *pp;                   // ファイル出力用の変数fp
+    char gpo[]="./raspi_gpo 4"; // raspi_gpo コマンド
+    char cmd[sizeof(gpo)+2];	// コマンド保存用
     int in = 0;                 // 数値変数inを定義
     char s[5];                  // 文字列変数sを定義
     
@@ -15,13 +16,16 @@ int main(){
         in = atoi(s);           // 数値に変換してinに代入
         printf("in=%d\n",in);   // inの値を表示
         if(in<0 || in>1) break; // 0～1以外の時に抜ける
-        fp = fopen(gpio, "w");  // GPIO用ファイルを開く
-        if( fp == NULL ){       // 失敗時
+        sprintf(cmd, "%s %d", gpo, in);	// コマンド作成
+        pp = popen(cmd, "r");  	// GPIO用ファイルを開く
+        if( pp == NULL ){       // 失敗時
             printf("ERROR\n");  // エラー表示
             return -1;          // 異常終了
         }
-        fprintf(fp,"%d\n",in);  // inの値を書き込み
-        fclose(fp);             // ファイルを閉じる
+        fgets(s, 5, pp);     	// シェルから取得
+        in = atoi(s);           // 数値に変換してinに代入
+        printf("%d\n",in);      // inの値を表示
+        pclose(pp);             // ファイルを閉じる
     }
     return 0;                   // 関数mainの正常終了(0)
 }
