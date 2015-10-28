@@ -25,9 +25,11 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>         // usleep用
+
 #define RasPi_1_REV 2       // Raspberry Pi 1 Type B の場合のリビジョン 通常=2
 #define RasPi_PORTS 26      // Raspberry Pi GPIO ピン数 26 固定
-#define GPIO_RETRY  1023    // GPIO 切換え時のリトライ回数
+#define GPIO_RETRY  3       // GPIO 切換え時のリトライ回数
 //  #define DEBUG               // デバッグモード
 
 int main(int argc,char **argv){
@@ -110,6 +112,7 @@ int main(int argc,char **argv){
             for(i=0;i<GPIO_RETRY;i++){
                 fgpio = fopen(dir, "w");
                 if( fgpio ) break;
+                usleep(50000);
             }
             if(i==GPIO_RETRY){
                 fprintf(stderr,"IO Error %s\n",dir);

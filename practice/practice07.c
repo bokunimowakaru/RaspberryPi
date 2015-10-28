@@ -14,7 +14,7 @@ int main(){
         fputs("in > ",stdout);  // 「in > 」を標準出力へ
         fgets(s, 5, stdin);     // 標準入力から取得
         in = atoi(s);           // 数値に変換してinに代入
-        printf("in=%d\n",in);   // inの値を表示
+        printf("in=%d ",in);    // inの値を表示
         if(in<0 || in>1) break; // 0～1以外の時に抜ける
         sprintf(cmd, "%s %d", gpo, in);	// コマンド作成
         pp = popen(cmd, "r");  	// GPIO用ファイルを開く
@@ -22,9 +22,9 @@ int main(){
             printf("ERROR\n");  // エラー表示
             return -1;          // 異常終了
         }
-        fgets(s, 5, pp);     	// シェルから取得
+        fgets(s, 5, pp);     	// シェルから戻り値を取得
         in = atoi(s);           // 数値に変換してinに代入
-        printf("%d\n",in);      // inの値を表示
+        printf("ret=%d\n",in);  // 戻り値を表示
         pclose(pp);             // ファイルを閉じる
     }
     return 0;                   // 関数mainの正常終了(0)
