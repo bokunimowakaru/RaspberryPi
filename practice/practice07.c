@@ -24,7 +24,7 @@ int main(){                     // プログラムのメイン関数
             printf("ERROR\n");  // エラー表示
             return -1;          // 異常終了
         }
-        fgets(s, 5, pp);        // シェルから戻り値を取得
+        fgets(s, 5, pp);        // コマンドの戻り値を取得
         in = atoi(s);           // 数値に変換してinに代入
         printf("ret=%d\n",in);  // 戻り値を表示
         pclose(pp);             // コマンド出力を閉じる
