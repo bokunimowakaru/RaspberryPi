@@ -19,9 +19,9 @@ int main(){                     // プログラムのメイン関数
             printf("ERROR\n");  // エラー表示
             return -1;          // 異常終了
         }
-        fgets(s, 8, pp);        // システムの戻り値を取得
+        fgets(s, 8, pp);        // コマンドの戻り値を取得
         in = atoi(s);           // 数値に変換してinに代入
-        temp = (float)in/1000.; // 変数tempにinの1/1000を
+        temp = (float)in/1000.; // tempにin÷1000を代入
         printf("Temp=%.1f[C]\n",temp);  // 温度を表示
         pclose(pp);             // コマンド出力を閉じる
         if( temp < prev ){      // 温度が低下した時
