@@ -3,7 +3,7 @@
 
 int main(){                     // プログラムのメイン関数
     FILE *pp;                   // コマンド出力用の変数pp
-    char cmd[]=
+    char cmd[]=                 // コマンドをcmdに代入
     "cat /sys/devices/virtual/thermal/thermal_zone0/temp";
     int in = 0;                 // 数値変数inを定義
     float temp;                 // 温度保存用の変数
