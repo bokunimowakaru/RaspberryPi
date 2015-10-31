@@ -7,6 +7,7 @@ PROGS =	practice01 \
 		practice05 \
 		practice06 \
 		practice07 \
+		practice08 \
 		../gpio/raspi_gpo
 
 all: $(PROGS) 
