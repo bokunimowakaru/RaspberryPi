@@ -2,7 +2,7 @@
 #include <stdlib.h>             // 型変換(atoi)を使用
 
 int main(){                     // プログラムのメイン関数
-    FILE *pp;                   // コマンド出力用の変数fp
+    FILE *pp;                   // コマンド出力用の変数pp
     char gpo[]="./raspi_gpo 4"; // raspi_gpo コマンド
     char cmd[sizeof(gpo)+2];    // コマンド保存用
     int in = 0;                 // 数値変数inを定義
@@ -15,7 +15,9 @@ int main(){                     // プログラムのメイン関数
         fgets(s, 5, stdin);     // 標準入力から取得
         in = atoi(s);           // 数値に変換してinに代入
         printf("in=%d ",in);    // inの値を表示
-        if(in<0 || in>1) break; // 0～1以外の時に抜ける
+        if(in<0 || in>1){       // 0～1以外の時に
+            break;              // whileループを抜ける
+        }
         sprintf(cmd, "%s %d", gpo, in); // コマンド作成
         pp = popen(cmd, "r");   // GPIO用ファイルを開く
         if( pp == NULL ){       // 失敗時

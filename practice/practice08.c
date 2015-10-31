@@ -2,7 +2,7 @@
 #include <stdlib.h>             // 型変換(atoi)を使用
 
 int main(){                     // プログラムのメイン関数
-    FILE *pp;                   // コマンド出力用の変数fp
+    FILE *pp;                   // コマンド出力用の変数pp
     char cmd[]=
     "cat /sys/devices/virtual/thermal/thermal_zone0/temp";
     int in = 0;                 // 数値変数inを定義
