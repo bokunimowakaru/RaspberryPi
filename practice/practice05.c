@@ -14,7 +14,7 @@ int main(){                     // プログラムのメイン関数
         fgets(s, 5, stdin);     // 標準入力から取得
         in = atoi(s);           // 数値に変換してinに代入
         printf("in=%d\n",in);   // inの値を表示
-        fp = fopen(fname, "a"); // ファイル作成(上書き)
+        fp = fopen(fname, "a"); // ファイル作成(追記)
         if( fp == NULL ){       // 作成失敗時
             printf("ERROR\n");  // エラー表示
             return -1;          // 異常終了
