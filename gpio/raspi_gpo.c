@@ -17,7 +17,7 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
         0       Lレベルを出力完了
         1       Hレベルを出力完了
         -1      非使用に設定完了
-        NULL    エラー(内容はstderr出力)
+        9        エラー(内容はstderr出力)
         
                                         Copyright (c) 2015 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
@@ -55,6 +55,7 @@ int main(int argc,char **argv){
     
     if( argc != 3 ){
         fprintf(stderr,"usage: %s port value\n",argv[0]);
+        printf("9\n");
         return -1;
     }
     port = atoi(argv[1]);
@@ -69,10 +70,12 @@ int main(int argc,char **argv){
     }
     if( i==RasPi_PORTS || port<0 ){
         fprintf(stderr,"Unsupported Port Error, %d\n",port);
+        printf("9\n");
         return -1;
     }
     if( value<-1 || value>1 ){
         fprintf(stderr,"Unsupported Value Error, %d\n",value);
+        printf("9\n");
         return -1;
     }
     if( value == -1 ){
@@ -88,6 +91,7 @@ int main(int argc,char **argv){
             return 0;
         }else{
             fprintf(stderr,"IO Error\n");
+            printf("9\n");
             return -1;
         }
     }
@@ -102,6 +106,7 @@ int main(int argc,char **argv){
         fgpio = fopen("/sys/class/gpio/export","w");
         if(fgpio==NULL ){
             fprintf(stderr,"IO Error\n");
+            printf("9\n");
             return -1;
         }else{
             fprintf(fgpio,"%d\n",port);
@@ -116,6 +121,7 @@ int main(int argc,char **argv){
             }
             if(i==GPIO_RETRY){
                 fprintf(stderr,"IO Error %s\n",dir);
+                printf("9\n");
                 return -1;
             }
             fprintf(fgpio,"out\n");
@@ -126,6 +132,7 @@ int main(int argc,char **argv){
             fgpio = fopen(gpio, "w");
             if(fgpio==NULL){
                 fprintf(stderr,"IO Error %s\n",gpio);
+                printf("9\n");
                 return -1;
             }
         }
