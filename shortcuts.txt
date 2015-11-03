@@ -69,3 +69,6 @@ GPIO使用ポートの開放
 温度を測定する
 	cat /sys/devices/virtual/thermal/thermal_zone0/temp
 
+■ XBee ZB 管理ライブラリのインストール
+	git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
+
