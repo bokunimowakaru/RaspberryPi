@@ -4,7 +4,7 @@
 int main(){                     // プログラムのメイン関数
     FILE *pp;                   // コマンド出力用の変数pp
     char gpo[]="./raspi_gpo 4"; // raspi_gpo コマンド
-    char cmd[sizeof(gpo)+2];    // コマンド保存用
+    char cmd[sizeof(gpo)+3];    // コマンド保存用
     int in = 0;                 // 数値変数inを定義
     char s[5];                  // 文字列変数sを定義
     
@@ -29,5 +29,7 @@ int main(){                     // プログラムのメイン関数
         printf("ret=%d\n",in);  // 戻り値を表示
         pclose(pp);             // コマンド出力を閉じる
     }
+    sprintf(cmd, "%s -1", gpo); // GIPO解放コマンドの作成
+    system(cmd);                // GIPO解放コマンドの実行
     return 0;                   // 関数mainの正常終了(0)
 }
