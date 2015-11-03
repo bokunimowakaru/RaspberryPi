@@ -1,8 +1,8 @@
-このファイルは、コピー&ペースト機能を使って本書のコマンドライン入力を
-簡略化したい場合にご利用ください。
+このファイルは、コマンドライン入力を簡略化するためのショートカット集です。
+コピー＆ペースト機能を使うことでコマンドやURLの入力の手間を省くことができます。
 
-							   Copyright (c) 2015 Wataru KUNINO
-							   http://www.geocities.jp/bokunimowakaru/
+                                         Copyright (c) 2015 Wataru KUNINO
+                                         http://www.geocities.jp/bokunimowakaru/
 
 
 ■ 第１章	Raspberry Piの使い方
@@ -41,78 +41,31 @@ Text Editorのインストール
 練習用プログラムのダウンロード
 	git clone https://github.com/bokunimowakaru/RaspberryPi.git
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+練習用プログラムのフォルダへ移動
+	cd RaspberryPi/practice/
+
+コンパイル
+	make
+
+練習用プログラムの実行
+	./practice01
+	./practice02
+	./practice03
+	./practice04
+	./practice05
+	./practice06
+	./practice07
+	./practice08
+
+GPIOの制御
+	cd RaspeberryPi/gpio
+	make
+	./raspi_gpo 4 1
+	./raspi_gpo 4 0
+
+GPIO使用ポートの開放
+	./raspi_gpo 4 -1
+
+温度を測定する
+	cat /sys/devices/virtual/thermal/thermal_zone0/temp
 
