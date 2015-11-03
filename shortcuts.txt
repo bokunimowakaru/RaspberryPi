@@ -1,9 +1,11 @@
 このファイルは、コマンドライン入力を簡略化するためのショートカット集です。
 コピー＆ペースト機能を使うことでコマンドやURLの入力の手間を省くことができます。
 
+ボクにもわかるRaspberry Pi
+http://www.geocities.jp/bokunimowakaru/q/pi/
+
                                          Copyright (c) 2015 Wataru KUNINO
                                          http://www.geocities.jp/bokunimowakaru/
-
 
 ■ 第１章	Raspberry Piの使い方
 
@@ -71,4 +73,8 @@ GPIO使用ポートの開放
 
 ■ XBee ZB 管理ライブラリのインストール
 	git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
+
+■ ボクにもわかるRaspberry Pi
+
+	http://www.geocities.jp/bokunimowakaru/q/pi/
 

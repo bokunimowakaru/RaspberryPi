@@ -1,5 +1,9 @@
 # RaspberryPi
 
+
+ボクにもわかるRaspberry Pi  
+http://www.geocities.jp/bokunimowakaru/q/pi/
+
 ----------------------------------------------------------------
 ライセンス・著作権表示
 
