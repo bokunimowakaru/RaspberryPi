@@ -22,10 +22,13 @@ NOOBS
 Raspbianのシャットダウン
 	sudo shutdown now
 
-オフィスソフトLibreOfficeのインストール
+オフィスソフト LibreOffice のインストール
 	sudo apt-get install libreoffice
 
-Sambaのインストール
+リモートデスクトップ用サーバ xrdp のインストール
+	sudo apt-get install xrdp
+
+ファイル共有サーバ Samba のインストール
 	sudo apt-get install samba
 	sudo leafpad /etc/samba/smb.conf &
 	sudo pdbedit -a pi
