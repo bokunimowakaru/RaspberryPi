@@ -77,6 +77,14 @@ GPIO使用ポートの開放
 ■ XBee ZB 管理ライブラリのインストール
 	git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
 
+■ Bluetooth プロトコルスタックのインストール
+	sudo apt-get install bluez
+	hcitool scan
+	sudo rfcomm connect /dev/rfcomm 00:00:00:00:00:00
+
+	cu -h -s 115200 -l /dev/rfcomm0
+	cu -h -s 115200 -l /dev/ttyUSB0
+
 ■ ボクにもわかるRaspberry Pi
 
 	http://www.geocities.jp/bokunimowakaru/q/pi/
