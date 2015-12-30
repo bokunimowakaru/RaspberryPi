@@ -79,11 +79,18 @@ GPIO使用ポートの開放
 
 ■ Bluetooth プロトコルスタックのインストール
 	sudo apt-get install bluez
+	sudo apt-get install bluez-hcidump
+
+■ Bluetooth RFCOMM接続
 	hcitool scan
 	sudo rfcomm connect /dev/rfcomm 00:00:00:00:00:00
 
 	cu -h -s 115200 -l /dev/rfcomm0
 	cu -h -s 115200 -l /dev/ttyUSB0
+
+■ Bluetooth BLE受信
+	sudo hcidump -R &
+	sudo hcitool lescan
 
 ■ ボクにもわかるRaspberry Pi
 
