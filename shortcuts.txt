@@ -25,6 +25,18 @@ Raspbianのシャットダウン
 オフィスソフト LibreOffice のインストール
 	sudo apt-get install libreoffice
 
+IPアドレスを確認する
+	ifconfig
+
+ネットワークのインタフェースの設定
+	sudo leafpad /etc/network/interfaces &
+
+ネットワークサービスの再起動
+	sudo service networking restart
+
+ブロードキャストPING(終了は[Ctrl]+[C])
+	 ping –b 244.0.0.1
+
 リモートデスクトップ用サーバ xrdp のインストール
 	sudo apt-get install xrdp
 
