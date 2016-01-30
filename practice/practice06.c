@@ -15,14 +15,14 @@ int main(){                     // プログラムのメイン関数
         printf("ERROR\n");      // エラー表示
         return -1;              // 異常終了
     }
-    do{                         // 繰り返し
+    while( feof(fp) == 0 ){     // データ終了まで繰り返す
         fgets(s, 16, fp);       // ファイルからデータ取得
         in = atoi(s);           // 数値に変換してinに代入
         for(i=0; i < in; i++){  // inの値の回数だけ繰り返す
             printf("#");        // 「#」を表示
         }
         printf("\tin=%d\n",in); // inの値を表示
-    }while( feof(fp) == 0 );    // データ終了まで繰り返す
+    }
     fclose(fp);                 // ファイルを閉じる
     return 0;                   // 関数mainの正常終了(0)
 }

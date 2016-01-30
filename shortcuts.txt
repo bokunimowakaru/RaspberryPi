@@ -28,14 +28,14 @@ Raspbianのシャットダウン
 IPアドレスを確認する
 	ifconfig
 
-ネットワークのインタフェースの設定
+ネットワークのインタフェースの設定ファイル
 	sudo leafpad /etc/network/interfaces &
 
 ネットワークサービスの再起動
 	sudo service networking restart
 
 ブロードキャストPING(終了は[Ctrl]+[C])
-	 ping –b 244.0.0.1
+	ping –b 244.0.0.1
 
 リモートデスクトップ用サーバ xrdp のインストール
 	sudo apt-get install xrdp
@@ -52,6 +52,18 @@ IPアドレスを確認する
 Text Editorのインストール
 	sudo apt-get install leafpad
 
+システムファイルの編集
+	sudo leafpad システム用ファイル名 &
+
+日本語マニュアルのインストール
+	sudo apt-get install manpages-ja manpages-ja-dev
+
+プロセスの表示
+	ps aux
+	ps aux |tail
+
+プロセスIDの表示
+	pidof leafpad
 
 ■ 第３章	Linux上でC言語プログラミング演習
 
