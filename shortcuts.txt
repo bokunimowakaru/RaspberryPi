@@ -1,11 +1,6 @@
 このファイルは、コマンドライン入力を簡略化するためのショートカット集です。
 コピー＆ペースト機能を使うことでコマンドやURLの入力の手間を省くことができます。
 
-ボクにもわかるRaspberry Pi
-http://www.geocities.jp/bokunimowakaru/q/pi/
-
-                                         Copyright (c) 2015 Wataru KUNINO
-                                         http://www.geocities.jp/bokunimowakaru/
 
 ■ 第１章	Raspberry Piの使い方
 
@@ -45,7 +40,6 @@ IPアドレスを確認する
 	sudo leafpad /etc/samba/smb.conf &
 	sudo pdbedit -a pi
 	sudo /etc/init.d/samba restart
-
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方
 
@@ -98,43 +92,122 @@ GPIO使用ポートの開放
 温度を測定する
 	cat /sys/devices/virtual/thermal/thermal_zone0/temp
 
-■ XBee ZB 管理ライブラリのインストールとテストソフトの実行
+■ XBee ZigBee 通信
+
+米Digi International社のホームページ
+	http://www.digi.com/
+
+XBee ZB 管理ライブラリのインストールとテストソフトの実行
 	git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
 	cd xbeeCoord/tools/
 	make
 	./xbee_test
 
-■ サンプルの実行方法(gcc利用)
+サンプルの実行方法(gcc利用)
 	cd ~/xbeeCoord/cqpub_pi/
 	gcc example01_rssi.c
 	./.a.out
 
-■ サンプルの実行方法(make利用)
+サンプルの実行方法(make利用)
 	cd ~/xbeeCoord/cqpub_pi/
 	make
 	./example01_rssi
 
-■ XBee ZB 管理ライブラリのオブジェクト作成およびリンク方法
+XBee ZB 管理ライブラリのオブジェクト作成およびリンク方法
 	cd ~/xbeeCoord/cqpub_pi/
 	gcc -c ../libs/xbee.c
 	gcc example01_rssi.c xbee.o
 
-■ Bluetooth プロトコルスタックのインストール
-	sudo apt-get install bluez
-	sudo apt-get install bluez-hcidump
+■ Wi-Fi 設定
 
-■ Bluetooth RFCOMM接続
+Windows用のパケットモニタソフト「SocketDebuggerFree」
+	http://sdg.udom.co.jp/
+
+Raspberry Pi用のパケットキャプチャソフト「WireShark 」
+	sudo apt-get install wireshark
+
+Wi-Fiアクセスポイントの設定
+	sudo leafpad /etc/wpa_supplicant/wpa_supplicant.conf &
+	network={
+	    ssid="SSIDを入力"
+	    psk="ネットワーク用パスワードを入力"
+	    proto=WPA WPA2
+	    key_mgmt=WPA-PSK
+	    pairwise=CCMP TKIP
+	    group=CCMP TKIP WEP104 WEP40
+	}
+
+Wi-Fi用DHCPクライアントの設定
+	sudo leafpad /etc/network/interfaces &
+	iface wlan0 inet dhcp
+
+設定の有効化
+	sudo service wpa_supplicant restart
+	sudo service networking restart
+	ifconfig
+
+■ Bluetooth 通信
+
+Bluetooth プロトコルスタックのインストール
+	sudo apt-get install bluez
+
+Bluetooth RFCOMM接続
 	hcitool scan
 	sudo rfcomm connect /dev/rfcomm 00:00:00:00:00:00
 
 	cu -h -s 115200 -l /dev/rfcomm0
 	cu -h -s 115200 -l /dev/ttyUSB0
 
-■ Bluetooth BLE受信
-	sudo hcidump -R &
-	sudo hcitool lescan
+■ Bluetooth Low Energy 通信
 
-■ ボクにもわかるRaspberry Pi
+Bluetooth プロトコルスタックのインストール
+	sudo apt-get install bluez
+	sudo apt-get install bluez-hcidump
+
+BLE受信
+	sudo hcitool lescan --passive
+
+Bluetoothデータ解析
+	sudo hcidump
+	sudo hcidump -R
+
+BLE GATTコマンド(READ)送信
+	sudo gatttool -b 00:1B:DC:44:xx:xx --char-read -a 0x0003
+
+BLE GATTコマンド(WRITE)送信
+	sudo gatttool -b 00:1B:DC:44:xx:xx --char-write -a 0x000d -n 01
+
+■ インターネット通信
+
+本サポートページの更新情報
+	curl -s www.geocities.jp/bokunimowakaru/cq/pi.txt
+	wget -q -O /dev/stdin www.geocities.jp/bokunimowakaru/cq/pi.txt
+
+時刻情報の取得
+	curl -s ntp-a1.nict.go.jp/cgi-bin/time
+
+データの解析
+	curl -s www.geocities.jp/bokunimowakaru/cq/pi.txt|grep '<info>'
+	curl -s www.geocities.jp/bokunimowakaru/cq/pi.txt|grep '<info>'|cut -f2|cut -d'<' -f1
+	curl -s www.geocities.jp/bokunimowakaru/cq/pi.txt|grep '<info>'|tr '<' ' '|awk '{print $2}'
+	curl -s rss.weather.yahoo.co.jp/rss/days/6200.xml|cut -d'<' -f17|cut -d'>' -f2
+
+ファイル転送
+	curl -u pi:password -k -T filename sftp://192.168.xx.xx/home/pi/
+	curl -u username:password -T filename ftp.xxx.ne.jp/dir/
+
+HTTPサーバ
+	sudo apt-get install apache2
+	sudo /etc/init.d/apache2 start
+	sudo leafpad /var/www/html/index.html
+	sudo chown pi.pi /var/www/html/index.html
+
+■ 関連リンク
+
+ボクにもわかるRaspberry Pi
 
 	http://www.geocities.jp/bokunimowakaru/q/pi/
 
+--------------------------------------------------------------------------------
+                                         Copyright (c) 2015-2016 Wataru KUNINO
+                                         http://www.geocities.jp/bokunimowakaru/
