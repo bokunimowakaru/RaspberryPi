@@ -98,8 +98,26 @@ GPIO使用ポートの開放
 温度を測定する
 	cat /sys/devices/virtual/thermal/thermal_zone0/temp
 
-■ XBee ZB 管理ライブラリのインストール
+■ XBee ZB 管理ライブラリのインストールとテストソフトの実行
 	git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
+	cd xbeeCoord/tools/
+	make
+	./xbee_test
+
+■ サンプルの実行方法(gcc利用)
+	cd ~/xbeeCoord/cqpub_pi/
+	gcc example01_rssi.c
+	./.a.out
+
+■ サンプルの実行方法(make利用)
+	cd ~/xbeeCoord/cqpub_pi/
+	make
+	./example01_rssi
+
+■ XBee ZB 管理ライブラリのオブジェクト作成およびリンク方法
+	cd ~/xbeeCoord/cqpub_pi/
+	gcc -c ../libs/xbee.c
+	gcc example01_rssi.c xbee.o
 
 ■ Bluetooth プロトコルスタックのインストール
 	sudo apt-get install bluez
