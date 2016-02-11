@@ -104,7 +104,7 @@ XBee ZB 管理ライブラリのインストールとテストソフトの実行
 	./xbee_test
 
 AT/Transparentモード用のコマンド実行ソフト
-	cd xbeeCoord/tools
+	cd ~/xbeeCoord/tools
 	make
 	./xbee_com B0 +++
 	./xbee_com B0 ATCB01
