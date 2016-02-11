@@ -103,6 +103,12 @@ XBee ZB 管理ライブラリのインストールとテストソフトの実行
 	make
 	./xbee_test
 
+AT/Transparentモード用のコマンド実行ソフト
+	cd xbeeCoord/tools
+	make
+	./xbee_com B0 +++
+	./xbee_com B0 ATCB01
+
 サンプルの実行方法(gcc利用)
 	cd ~/xbeeCoord/cqpub_pi/
 	gcc example01_rssi.c
