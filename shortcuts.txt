@@ -10,7 +10,7 @@ SDフォーマッター
 NOOBS
 	https://www.raspberrypi.org/downloads/NOOBS/
 
-フォントのインストール
+フォントのインストール(文字化けする場合のみ)
 	sudo apt-get install ttf-kochi-gothic
 	sudo apt-get install fonts-takao
 
@@ -40,6 +40,12 @@ IPアドレスを確認する
 	sudo leafpad /etc/samba/smb.conf &
 	sudo pdbedit -a pi
 	sudo /etc/init.d/samba restart
+
+Raspbianのアップデート
+	sudo apt-get update
+	sudo apt-get dist-upgrade
+	sudo rpi-update
+	sudo reboot
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方
 
