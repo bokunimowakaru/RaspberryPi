@@ -163,6 +163,9 @@ Wi-Fi用DHCPクライアントの設定
 Bluetooth プロトコルスタックのインストール
 	sudo apt-get install bluez
 
+シリアル端末cuのインストール
+	sudo apt-get install cu
+
 Bluetooth RFCOMM接続
 	hcitool scan
 	sudo rfcomm connect /dev/rfcomm 00:00:00:00:00:00
