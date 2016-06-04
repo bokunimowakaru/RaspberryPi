@@ -177,7 +177,9 @@ Bluetooth プロトコルスタックのインストール
 	sudo apt-get install bluez-hcidump
 
 BLE受信
-	sudo hcitool lescan --passive
+	sudo hcitool lescan --pa --du
+	又は
+	sudo hcitool lescan --passive --duplicates
 
 Bluetoothデータ解析
 	sudo hcidump
