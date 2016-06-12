@@ -15,7 +15,7 @@ DEC=`expr ${temp} / 1000`                                   # 気温に換算(�
 FRAC=`expr ${temp} / 100 - ${DEC} \* 10`                    # 気温に換算(小数部)
 DEC=`expr ${DEC} - ${TEMP_OFFSET}`                          # 温度補正
 echo "Temperature = ${DEC}.${FRAC}"                         # 温度測定結果の表示
-DATA=\"d1\"\:\"`echo ${DEC}.${FRAC}`\"                      # データ生成
+DATA=\"d1\"\:\"${DEC}.${FRAC}\"                             # データ生成
 JSON="{\"writeKey\":\"${AmbientWriteKey}\",${DATA}}"        # JSON用のデータを生成
 curl -s ${HOST}/api/v2/channels/${AmbientChannelId}/data\
      -X POST -H "Content-Type: application/json" -d ${JSON} # データ送信
