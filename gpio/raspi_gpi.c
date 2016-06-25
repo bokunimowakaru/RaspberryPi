@@ -12,14 +12,19 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
         $ raspi_gpi 4           GIPOポート4の入力値を取得
         $ raspi_gpi 18          GIPOポート18の入力値を取得
         $ raspi_gpi 18 -1       GIPOポート18を非使用に戻す
+        $ raspi_gpi 18 0        GIPOポート18が0になるまで待つ
+        $ raspi_gpi 18 1        GIPOポート18が1になるまで待つ
 
-    応答値
+    応答値(stdio)
         0       Lレベルを取得
         1       Hレベルを取得
         -1      非使用に設定完了
-        9        エラー(内容はstderr出力)
-        
-                                        Copyright (c) 2015 Wataru KUNINO
+        9       エラー(エラー内容はstderr出力)
+
+    戻り値
+        0       正常終了
+        -1      異常終了
+                                        Copyright (c) 2015-2016 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
 
@@ -31,7 +36,7 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 #define RasPi_PORTS 26      // Raspberry Pi GPIO ピン数 26 固定
 #define GPIO_RETRY  3       // GPIO 切換え時のリトライ回数
 #define S_NUM       8       // 文字列の最大長
-//  #define DEBUG               // デバッグモード
+//	#define DEBUG               // デバッグモード
 
 int main(int argc,char **argv){
     FILE *fgpio;
@@ -39,9 +44,10 @@ int main(int argc,char **argv){
     char gpio[]="/sys/class/gpio/gpio00/value";
     char dir[] ="/sys/class/gpio/gpio00/direction";
     char s[S_NUM];
-    int i;
-    int port;
-    int value;
+    int i;				// ループ用
+    int port;			// GPIOポート
+    int value;			// 応答値
+    int trig=-1;		// GPIOがtrig値に変化するまで待つ（-1は待たない）
     
     #if RasPi_1_REV == 1
         /* RasPi      pin 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16    */
@@ -60,6 +66,7 @@ int main(int argc,char **argv){
         printf("9\n");
         return -1;
     }
+    /* 第1引数portの内容確認 */
     port = atoi(argv[1]);
     for(i=0;i<RasPi_PORTS;i++){
         if( pin_ports[i] == port ){
@@ -74,35 +81,43 @@ int main(int argc,char **argv){
         printf("9\n");
         return -1;
     }
+    /* 第2引数valueの内容確認 */
     if( argc == 3 ){
         value = atoi(argv[2]);
-        if( value != -1 ){
-            fprintf(stderr,"Unsupported Value Error, %d\n",value);
-            printf("9\n");
-            return -1;
-        }
-        fgpio = fopen("/sys/class/gpio/unexport","w");
-        if(fgpio){
-            fprintf(fgpio,"%d\n",port);
-            fclose(fgpio);
-            #ifdef DEBUG
-                printf("Disabled Port\n");
-            #else
-                printf("-1\n");
-            #endif
-            return 0;
-        }else{
-            fprintf(stderr,"IO Error\n");
-            printf("9\n");
-            return -1;
+        switch( value ){
+            case -1:
+                fgpio = fopen("/sys/class/gpio/unexport","w");
+                if(fgpio){
+                    fprintf(fgpio,"%d\n",port);
+                    fclose(fgpio);
+                    #ifdef DEBUG
+                        printf("Disabled Port\n");
+                    #else
+                        printf("-1\n");
+                    #endif
+                    return 0;
+                }else{
+                    fprintf(stderr,"IO Error\n");
+                    printf("9\n");
+                    return -1;
+                }
+                break;
+            case 0:
+            case 1:
+                trig=value;
+                break;
+            default:
+                fprintf(stderr,"Unsupported Value Error, %d\n",value);
+                printf("9\n");
+                return -1;
         }
     }
-    
+    /* ポート番号の設定 */
     gpio[20]='\0';
     dir[20]='\0';
     sprintf(gpio,"%s%d/value",gpio,port);
     sprintf(dir,"%s%d/direction",dir,port);
-    
+    /* ポート開始処理 */
     fgpio = fopen(gpio, "r");
     if( fgpio==NULL ){
         fgpio = fopen("/sys/class/gpio/export","w");
@@ -129,7 +144,7 @@ int main(int argc,char **argv){
             fprintf(fgpio,"in\n");
             fclose(fgpio);
             #ifdef DEBUG
-                printf("Set Direction to IN (tryed %d)\n",i);
+                printf("Set Direction to IN (tried %d)\n",i);
             #endif
             fgpio = fopen(gpio, "r");
             if(fgpio==NULL){
@@ -139,13 +154,27 @@ int main(int argc,char **argv){
             }
         }
     }
+    /* ポート入力処理 */
     fgets(s, S_NUM, fgpio);
     value = atoi(s);
-    #ifdef DEBUG
-        printf("%s = %d\n",gpio,value);
-    #else
-        printf("%d\n",value);
-    #endif
     fclose(fgpio);
+    /* 期待値trigの待ち受け処理 */
+    if( trig >= 0 ){
+        i=0;
+        while( value != trig ){
+            fgpio = fopen(gpio, "r");
+            fgets(s, S_NUM, fgpio);
+            value = atoi(s);
+            i++;
+            fclose(fgpio);
+        }
+        value = i;
+    }
+    /* ポート状態の出力 */
+    #ifdef DEBUG
+        if( trig < 0 ) printf("%s = ",gpio);
+        else printf("Time = ");
+    #endif
+    printf("%d\n",value);
     return 0;
 }

@@ -13,13 +13,16 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
         $ raspi_gpo 18 0        GIPOポート18に0(Lレベル)を出力
         $ raspi_gpo 18 -1       GIPOポート18を非使用に戻す
 
-    応答値
+    応答値(stdio)
         0       Lレベルを出力完了
         1       Hレベルを出力完了
         -1      非使用に設定完了
-        9        エラー(内容はstderr出力)
-        
-                                        Copyright (c) 2015 Wataru KUNINO
+        9       エラー(エラー内容はstderr出力)
+
+    戻り値
+        0       正常終了
+        -1      異常終了
+                                        Copyright (c) 2015-2016 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
 
