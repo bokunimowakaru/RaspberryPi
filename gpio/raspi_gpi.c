@@ -36,7 +36,7 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 #define RasPi_PORTS 26      // Raspberry Pi GPIO ピン数 26 固定
 #define GPIO_RETRY  3       // GPIO 切換え時のリトライ回数
 #define S_NUM       8       // 文字列の最大長
-//	#define DEBUG               // デバッグモード
+//  #define DEBUG               // デバッグモード
 
 int main(int argc,char **argv){
     FILE *fgpio;
@@ -44,10 +44,10 @@ int main(int argc,char **argv){
     char gpio[]="/sys/class/gpio/gpio00/value";
     char dir[] ="/sys/class/gpio/gpio00/direction";
     char s[S_NUM];
-    int i;				// ループ用
-    int port;			// GPIOポート
-    int value;			// 応答値
-    int trig=-1;		// GPIOがtrig値に変化するまで待つ（-1は待たない）
+    int i;              // ループ用
+    int port;           // GPIOポート
+    int value;          // 応答値
+    int trig=-1;        // GPIOがtrig値に変化するまで待つ（-1は待たない）
     
     #if RasPi_1_REV == 1
         /* RasPi      pin 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16    */

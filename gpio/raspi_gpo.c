@@ -40,9 +40,9 @@ int main(int argc,char **argv){
     //           012345678901234567890      gpio[20]と[21]にポート番号が入る
     char gpio[]="/sys/class/gpio/gpio00/value";
     char dir[] ="/sys/class/gpio/gpio00/direction";
-    int i;
-    int port;
-    int value;
+    int i;              // ループ用
+    int port;           // GPIOポート
+    int value;          // 応答値
     
     #if RasPi_1_REV == 1
         /* RasPi      pin 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16    */
@@ -61,6 +61,7 @@ int main(int argc,char **argv){
         printf("9\n");
         return -1;
     }
+    /* 第1引数portと第2引数valueの内容確認 */
     port = atoi(argv[1]);
     value = atoi(argv[2]);
     for(i=0;i<RasPi_PORTS;i++){
@@ -98,12 +99,12 @@ int main(int argc,char **argv){
             return -1;
         }
     }
-    
+    /* ポート番号の設定 */
     gpio[20]='\0';
     dir[20]='\0';
     sprintf(gpio,"%s%d/value",gpio,port);
     sprintf(dir,"%s%d/direction",dir,port);
-    
+    /* ポート開始処理 */
     fgpio = fopen(gpio, "w");
     if( fgpio==NULL ){
         fgpio = fopen("/sys/class/gpio/export","w");
@@ -130,7 +131,7 @@ int main(int argc,char **argv){
             fprintf(fgpio,"out\n");
             fclose(fgpio);
             #ifdef DEBUG
-                printf("Set Direction to OUT (tryed %d)\n",i);
+                printf("Set Direction to OUT (tried %d)\n",i);
             #endif
             fgpio = fopen(gpio, "w");
             if(fgpio==NULL){
@@ -140,12 +141,12 @@ int main(int argc,char **argv){
             }
         }
     }
+    /* ポート出力処理 */
     fprintf(fgpio,"%d\n",value);
-    #ifdef DEBUG
-        printf("%s = %d\n",gpio,value);
-    #else
-        printf("%d\n",value);
-    #endif
     fclose(fgpio);
+    #ifdef DEBUG
+        printf("%s = ",gpio);
+    #endif
+    printf("%d\n",value);
     return 0;
 }
