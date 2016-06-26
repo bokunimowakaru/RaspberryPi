@@ -46,7 +46,7 @@ FILE *fgpio;
 char buf[S_NUM];			// ir_read.c内のdigitalReadで使用するために確保
 char gpio[]="/sys/class/gpio/gpio00/value";
 char dir[] ="/sys/class/gpio/gpio00/direction";
-#include "ir/ir_read.c"
+#include "../libs/ir/ir_read.c"
 
 int main(int argc,char **argv){
     char s[S_NUM];
