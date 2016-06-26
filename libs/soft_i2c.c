@@ -241,6 +241,56 @@ byte i2c_start(void){
 	return(1);
 }
 
+byte i2c_read(byte adr, byte *rx, byte len){
+/*
+入力：byte adr = I2Cアドレス(7ビット)
+出力：byte *rx = 受信データ用ポインタ
+入力：byte len = 受信長
+戻り値：byte 受信結果長、０の時はエラー
+*/
+	byte ret,i;
+	
+	if( !i2c_start() ) return(0);
+	adr <<= 1;								// 7ビット->8ビット
+	adr |= 0x01;							// RW=1 受信モード
+	if( i2c_tx(adr)==0 ) return(0);			// アドレス設定
+	
+	/* スレーブ待機状態待ち */
+	for(i=GPIO_RETRY;i>0;i--){
+		_delayMicroseconds(I2C_RAMDA);
+		if( digitalRead(PORT_SDA)==0  ) break;
+	}
+	if(i==0){
+		i2c_error("I2C_RX / no ACK");
+		return(0);
+	}
+	for(i=10;i>0;i--){
+		_delayMicroseconds(I2C_RAMDA);
+		if( digitalRead(PORT_SCL)==1  ) break;
+	}
+	if(i==0){
+		i2c_error("I2C_RX / Clock Line Holded");
+		return(0);
+	}
+	/* 受信データ */
+	for(ret=0;ret<len;ret++){
+		i2c_SCL(0);							// (SCL)	L Out
+		i2c_SDA(1);							// (SDA)	H Imp
+		rx[ret]=0x00;
+		for(i=0;i<8;i++){
+			i2c_SCL(1);						// (SCL)	H Imp
+			rx[ret] |= (digitalRead(PORT_SDA))<<(7-i);		//data[22] b4=Port 12(SDA)
+			i2c_SCL(0);						// (SCL)	L Out
+		}
+		// ACKを応答する
+		i2c_SDA(0);							// (SDA)	L Out
+		i2c_SCL(1);							// (SCL)	H Imp
+		_delayMicroseconds(I2C_RAMDA);
+	}
+	i2c_SDA(1);								// (SDA)	H Imp
+	return(ret);
+}
+
 byte i2c_write(byte adr, byte *tx, byte len){
 /*
 入力：byte adr = I2Cアドレス(7ビット)

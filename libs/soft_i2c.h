@@ -24,6 +24,7 @@ byte i2c_tx(const byte in);
 byte i2c_init(void);
 byte i2c_close(void);
 byte i2c_start(void);
+byte i2c_read(byte adr, byte *rx, byte len);
 byte i2c_write(byte adr, byte *tx, byte len);
 void i2c_lcd_out(byte y,byte *lcd);
 void utf_del_uni(char *s);
