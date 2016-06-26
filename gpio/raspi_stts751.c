@@ -31,7 +31,7 @@ int i2c_temp(){
 	        //  |______________________ 0:EVENTピン使用 1:使用しない
 	        
 	i2c_write(0x39,config,2);		// レジスタ 0x03設定
-	sleep(1);						// 測定待ち
+	delay(120);						// 測定待ち 112ms以上
 	data=0x00;
 	i2c_write(0x39,&data,1);		// レジスタ 0x00(温度上位桁)を指定
 	i2c_read(0x39,&data,1);			// 読み出し
