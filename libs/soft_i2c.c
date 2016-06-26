@@ -241,7 +241,7 @@ byte i2c_start(void){
 
 byte i2c_write(byte adr, byte *tx, byte len){
 /*
-入力：byte adr = I2Cアドレス ／SHT 温度測定時0x01	湿度測定時0x02
+入力：byte adr = I2Cアドレス(8ビット)
 入力：byte *tx = 送信データ用ポインタ
 入力：byte len = 送信データ長
 */
