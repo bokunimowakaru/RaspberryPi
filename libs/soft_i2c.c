@@ -159,14 +159,15 @@ byte i2c_tx(const byte in){
 	}
 	/* ACK処理 */
 	_delayMicroseconds(I2C_RAMDA);
+	i2c_SDA(1);								// (SDA)	H Imp  2016/6/26 先にSDAを終わらせる
 	i2c_SCL(1);								// (SCL)	H Imp
-	i2c_SDA(1);								// (SDA)	H Imp
-	for(i=GPIO_RETRY;i>0;i--){
+	for(i=3;i>0;i--){						// さらにクロックを上げた瞬間には確定しているハズ
 		if( digitalRead(PORT_SDA) == 0 ) break;	// 速やかに確認
-		_delayMicroseconds(I2C_RAMDA);
+		_delayMicroseconds(I2C_RAMDA/2);
 	}
 	if(i==0){
-		i2c_error("I2C_TX / no ACK");
+		i2c_SCL(0);							// (SCL)	L Out
+		i2c_log("no ACK");
 		return(0);
 	}
     #ifdef DEBUG
@@ -222,10 +223,11 @@ byte i2c_close(void){
 }
 
 byte i2c_start(void){
+/* 0=エラー	*/
 //	if(!i2c_init())return(0);				// SDA,SCL  H Out
 	int i;
 
-	for(i=5000;i>0;i--){						// リトライ50回まで
+	for(i=5000;i>0;i--){					// リトライ 5000ms
 		i2c_SDA(1);							// (SDA)	H Imp
 		i2c_SCL(1);							// (SCL)	H Imp
 		if( digitalRead(PORT_SCL)==1 &&
@@ -238,7 +240,7 @@ byte i2c_start(void){
 	i2c_SDA(0);								// (SDA)	L Out
 	_delayMicroseconds(I2C_RAMDA);
 	i2c_SCL(0);								// (SCL)	L Out
-	return(1);
+	return(i);
 }
 
 byte i2c_read(byte adr, byte *rx, byte len){
@@ -253,7 +255,10 @@ byte i2c_read(byte adr, byte *rx, byte len){
 	if( !i2c_start() ) return(0);
 	adr <<= 1;								// 7ビット->8ビット
 	adr |= 0x01;							// RW=1 受信モード
-	if( i2c_tx(adr)==0 ) return(0);			// アドレス設定
+	if( i2c_tx(adr)==0 ){					// アドレス設定
+		i2c_error("I2C_RX / no ACK (Address)");
+		return(0);		
+	}
 	
 	/* スレーブ待機状態待ち */
 	for(i=GPIO_RETRY;i>0;i--){
@@ -261,7 +266,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 		if( digitalRead(PORT_SDA)==0  ) break;
 	}
 	if(i==0){
-		i2c_error("I2C_RX / no ACK");
+		i2c_error("I2C_RX / no ACK (Reading)");
 		return(0);
 	}
 	for(i=10;i>0;i--){
@@ -301,19 +306,25 @@ byte i2c_write(byte adr, byte *tx, byte len){
 	if( !i2c_start() ) return(0);
 	adr <<= 1;								// 7ビット->8ビット
 	adr &= 0xFE;							// RW=0 送信モード
-	if( i2c_tx(adr)>0 && len>0 ){
+	if( i2c_tx(adr)>0 ){
 		/* データ送信 */
 		for(ret=0;ret<len;ret++){
 			i2c_SDA(0);						// (SDA)	L Out
 			i2c_SCL(0);						// (SCL)	L Out
-			i2c_tx(tx[ret]);
+			if( i2c_tx(tx[ret]) == 0){
+				i2c_error("i2c_write / no ACK (Writing)");
+				return(0);
+			}
 		}
+	}else if( len>0 ){						// len=0の時はエラーにしないAM2320用
+		i2c_error("i2c_write / no ACK (Address)");
+		return(0);
 	}
 	/* STOP */
 	i2c_SDA(0);								// (SDA)	L Out
 	i2c_SCL(0);								// (SCL)	L Out
 	_delayMicroseconds(I2C_RAMDA);
-	if(len==0)_delayMicroseconds(800);
+	if(len==0)_delayMicroseconds(800);		// AM2320用
 	i2c_SCL(1);								// (SCL)	H Imp
 	i2c_SDA(1);								// (SDA)	H Imp
 	return(ret);
