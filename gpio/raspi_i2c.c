@@ -19,30 +19,14 @@ Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の�
 #include "../libs/soft_i2c.h"
 
 typedef unsigned char byte; 
-extern FILE *fgpio;
-extern char buf[];
-extern struct timeval micros_time;				//time_t micros_time;
-extern int micros_prev, micros_sec;
-
 int main(int argc,char **argv){
 	byte data[2];
-	int i;
 	
     if( argc < 1 || argc > 3 ){
         fprintf(stderr,"usage: %s \n",argv[0]);
         printf("9\n");
         return -1;
     }
-    for(i=0;i<2;i++){
-		fgpio = fopen("/sys/class/gpio/export","w");
-	    if(fgpio==NULL ){
-	        fprintf(stderr,"IO Error\n");
-	        printf("9\n");
-	        return -1;
-	    }
-	    fprintf(fgpio,"%d\n",i+2);
-	    fclose(fgpio);
-	}
     
 	/* 液晶のセットアップ */
 	i2c_init();			// I2Cインタフェースの初期化
@@ -57,17 +41,8 @@ int main(int argc,char **argv){
 	data[0]=0x00; data[1]=0x0C; i2c_write(0x7C,data,2);	// DisplayON	C
 	
 	printf("Print LCD\n");
-	i2c_lcd_print("Hello!  I2C LCD ");
+	i2c_lcd_print("ﾎﾞｸﾆﾓﾜｶﾙ Rasp.Pi");
+	i2c_close();
 	
-    for(i=0;i<2;i++){
-		fgpio = fopen("/sys/class/gpio/unexport","w");
-	    if(fgpio==NULL ){
-	        fprintf(stderr,"IO Error\n");
-	        printf("9\n");
-	        return -1;
-	    }
-	    fprintf(fgpio,"%d\n",i+2);
-	    fclose(fgpio);
-	}
 	return 0;
 }
