@@ -143,7 +143,7 @@ void i2c_SDA(byte level){
 }
 
 byte i2c_tx(const byte in){
-	byte i;
+	int i;
     #ifdef DEBUG
     	char s[32];
 		sprintf(s,"tx data = [%02X]",in);
@@ -176,7 +176,7 @@ byte i2c_tx(const byte in){
 }
 
 byte i2c_init(void){
-	byte i;
+	int i;
 
 	_micros_0();
 	i2c_log("I2C_Init");
@@ -295,26 +295,25 @@ byte i2c_write(byte adr, byte *tx, byte len){
 /*
 入力：byte adr = I2Cアドレス(7ビット)
 入力：byte *tx = 送信データ用ポインタ
-入力：byte len = 送信データ長
+入力：byte len = 送信データ長（0のときはアドレスのみを送信する）
 */
-	byte ret;
-	if(len){
-		if( !i2c_start() ) return(0);
-	}else return(0);
+	byte ret=0;
+	if( !i2c_start() ) return(0);
 	adr <<= 1;								// 7ビット->8ビット
 	adr &= 0xFE;							// RW=0 送信モード
-	if( i2c_tx(adr)==0 ) return(0);			// アドレス設定
-
-	/* データ送信 */
-	for(ret=0;ret<len;ret++){
-		i2c_SDA(0);							// (SDA)	L Out
-		i2c_SCL(0);							// (SCL)	L Out
-		i2c_tx(tx[ret]);
+	if( i2c_tx(adr)>0 && len>0 ){
+		/* データ送信 */
+		for(ret=0;ret<len;ret++){
+			i2c_SDA(0);						// (SDA)	L Out
+			i2c_SCL(0);						// (SCL)	L Out
+			i2c_tx(tx[ret]);
+		}
 	}
 	/* STOP */
 	i2c_SDA(0);								// (SDA)	L Out
 	i2c_SCL(0);								// (SCL)	L Out
 	_delayMicroseconds(I2C_RAMDA);
+	if(len==0)_delayMicroseconds(800);
 	i2c_SCL(1);								// (SCL)	H Imp
 	i2c_SDA(1);								// (SDA)	H Imp
 	return(ret);
