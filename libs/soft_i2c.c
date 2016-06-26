@@ -20,6 +20,8 @@ Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の�
 
 #define PORT_SCL	"/sys/class/gpio/gpio3/value"		// I2C SCLポート
 #define PORT_SDA	"/sys/class/gpio/gpio2/value"		// I2C SDAポート
+#define PORT_SDANUM	2									// I2C SDAポートの番号
+														// SCLはSDA+1(固定)
 #define INPUT		"in"
 #define OUTPUT		"out"
 #define LOW			0
@@ -185,7 +187,7 @@ byte i2c_init(void){
 	        printf("9\n");
 	        return i;
 	    }
-	    fprintf(fgpio,"%d\n",i+2);
+	    fprintf(fgpio,"%d\n",i + PORT_SDANUM);
 	    fclose(fgpio);
 	}
 	for(i=GPIO_RETRY;i>0;i--){						// リトライ50回まで
@@ -213,7 +215,7 @@ byte i2c_close(void){
 	        printf("9\n");
 	        return -1;
 	    }
-	    fprintf(fgpio,"%d\n",i+2);
+	    fprintf(fgpio,"%d\n",i + PORT_SDANUM);
 	    fclose(fgpio);
 	}
 	return 0;
@@ -241,7 +243,7 @@ byte i2c_start(void){
 
 byte i2c_write(byte adr, byte *tx, byte len){
 /*
-入力：byte adr = I2Cアドレス(8ビット)
+入力：byte adr = I2Cアドレス(7ビット)
 入力：byte *tx = 送信データ用ポインタ
 入力：byte len = 送信データ長
 */
@@ -249,6 +251,7 @@ byte i2c_write(byte adr, byte *tx, byte len){
 	if(len){
 		if( !i2c_start() ) return(0);
 	}else return(0);
+	adr <<= 1;								// 7ビット->8ビット
 	adr &= 0xFE;							// RW=0 送信モード
 	if( i2c_tx(adr)==0 ) return(0);			// アドレス設定
 
@@ -276,12 +279,12 @@ void i2c_lcd_out(byte y,byte *lcd){
 		data[1]=0xC0;
 		y=1;
 	}
-	i2c_write(0x7C,data,2);
+	i2c_write(0x3E,data,2);
 	for(i=0;i<8;i++){
 		if(lcd[i]==0x00) break;
 		data[0]=0x40;
 		data[1]=lcd[i];
-		i2c_write(0x7C,data,2);
+		i2c_write(0x3E,data,2);
 	}
 }
 
@@ -306,14 +309,14 @@ void utf_del_uni(char *s){
 
 void i2c_lcd_init(void){
 	byte data[2];
-	data[0]=0x00; data[1]=0x39; i2c_write(0x7C,data,2);	// IS=1
-	data[0]=0x00; data[1]=0x11; i2c_write(0x7C,data,2);	// OSC
-	data[0]=0x00; data[1]=0x70; i2c_write(0x7C,data,2);	// コントラスト	0
-	data[0]=0x00; data[1]=0x56; i2c_write(0x7C,data,2);	// Power/Cont	6
-	data[0]=0x00; data[1]=0x6C; i2c_write(0x7C,data,2);	// FollowerCtrl	C
+	data[0]=0x00; data[1]=0x39; i2c_write(0x3E,data,2);	// IS=1
+	data[0]=0x00; data[1]=0x11; i2c_write(0x3E,data,2);	// OSC
+	data[0]=0x00; data[1]=0x70; i2c_write(0x3E,data,2);	// コントラスト	0
+	data[0]=0x00; data[1]=0x56; i2c_write(0x3E,data,2);	// Power/Cont	6
+	data[0]=0x00; data[1]=0x6C; i2c_write(0x3E,data,2);	// FollowerCtrl	C
 	delay(200);
-	data[0]=0x00; data[1]=0x38; i2c_write(0x7C,data,2);	// IS=0
-	data[0]=0x00; data[1]=0x0C; i2c_write(0x7C,data,2);	// DisplayON	C
+	data[0]=0x00; data[1]=0x38; i2c_write(0x3E,data,2);	// IS=0
+	data[0]=0x00; data[1]=0x0C; i2c_write(0x3E,data,2);	// DisplayON	C
 }
 
 void i2c_lcd_print(char *s){
