@@ -2,6 +2,7 @@ CC = gcc -Wall -O1
 PROGS =	raspi_gpi \
 		raspi_gpo \
 		raspi_ir_in \
+		raspi_temp \
 
 all: $(PROGS)
 		gcc -Wall -O1 -c ../libs/soft_i2c.c -o ../libs/soft_i2c.o

@@ -6,8 +6,8 @@ Raspberry Pi用 I2C液晶 表示プログラム  raspi_lcd
 
 I2C接続の小型液晶に文字を表示する
 
-                               			Copyright (c) 2014-2016 Wataru KUNINO
-                               			http://www.geocities.jp/bokunimowakaru/
+                                        Copyright (c) 2014-2016 Wataru KUNINO
+                                        http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
 
 #include <stdio.h>
@@ -17,19 +17,19 @@ I2C接続の小型液晶に文字を表示する
 
 typedef unsigned char byte; 
 int main(int argc,char **argv){
-	int i=1;
-	char s[49];
-	i2c_init();
-	i2c_lcd_init();
-	s[0]='\0';
-	if(argc==1) i2c_lcd_print("ﾎﾞｸﾆﾓﾜｶﾙ Rasp.Pi");
-	else while(i<argc && strlen(s)<16){
-		strncat(s,argv[i],47);
-		utf_del_uni(s);
-		strncat(s," ",16);
-		i++;
-	}
-	i2c_lcd_print(s);
-	i2c_close();
-	return 0;
+    int i=1;
+    char s[49];
+    i2c_init();
+    i2c_lcd_init();
+    s[0]='\0';
+    if(argc==1) i2c_lcd_print("ﾎﾞｸﾆﾓﾜｶﾙ Rasp.Pi");
+    else while(i<argc && strlen(s)<16){
+        strncat(s,argv[i],47);
+        utf_del_uni(s);
+        strncat(s," ",16);
+        i++;
+    }
+    i2c_lcd_print(s);
+    i2c_close();
+    return 0;
 }

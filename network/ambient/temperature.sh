@@ -6,7 +6,7 @@
 AmbientChannelId=100                                        # チャネルID(Ambientで取得)
 AmbientWriteKey="0123456789abcdef"                          # ライトキー(16桁・同上)
 HOST="54.65.206.59"                                         # 送信先アドレス(変更不要)
-TEMP_OFFSET=30                                              # CPUの温度上昇値(要調整)
+TEMP_OFFSET=25                                              # CPUの温度上昇値(要調整)
 INTERVAL=10                                                 # 測定間隔
 
 while true;do                                               # 永久に繰り返し
