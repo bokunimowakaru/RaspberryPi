@@ -36,6 +36,7 @@ FILE *fgpio;
 char buf[S_NUM];
 struct timeval micros_time;				//time_t micros_time;
 int micros_prev,micros_sec;
+int ERROR_CHECK=1;
 
 int _micros(){
 	int micros;
@@ -165,7 +166,7 @@ byte i2c_tx(const byte in){
 		if( digitalRead(PORT_SDA) == 0 ) break;	// 速やかに確認
 		_delayMicroseconds(I2C_RAMDA/2);
 	}
-	if(i==0){
+	if(i==0 && ERROR_CHECK ){
 		i2c_SCL(0);							// (SCL)	L Out
 		i2c_log("no ACK");
 		return(0);
@@ -235,7 +236,7 @@ byte i2c_start(void){
 		delay(1);
 	}
 	i2c_log("i2c_start");
-	if(i==0) i2c_error("i2c_start / Locked Lines");
+	if(i==0 && ERROR_CHECK) i2c_error("i2c_start / Locked Lines");
 	_delayMicroseconds(I2C_RAMDA*8);
 	i2c_SDA(0);								// (SDA)	L Out
 	_delayMicroseconds(I2C_RAMDA);
@@ -252,10 +253,10 @@ byte i2c_read(byte adr, byte *rx, byte len){
 */
 	byte ret,i;
 	
-	if( !i2c_start() ) return(0);
+	if( !i2c_start() && ERROR_CHECK) return(0);
 	adr <<= 1;								// 7ビット->8ビット
 	adr |= 0x01;							// RW=1 受信モード
-	if( i2c_tx(adr)==0 ){					// アドレス設定
+	if( i2c_tx(adr)==0 && ERROR_CHECK ){	// アドレス設定
 		i2c_error("I2C_RX / no ACK (Address)");
 		return(0);		
 	}
@@ -265,7 +266,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 		_delayMicroseconds(I2C_RAMDA);
 		if( digitalRead(PORT_SDA)==0  ) break;
 	}
-	if(i==0){
+	if(i==0 && ERROR_CHECK){
 		i2c_error("I2C_RX / no ACK (Reading)");
 		return(0);
 	}
@@ -273,7 +274,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 		_delayMicroseconds(I2C_RAMDA);
 		if( digitalRead(PORT_SCL)==1  ) break;
 	}
-	if(i==0){
+	if(i==0 && ERROR_CHECK){
 		i2c_error("I2C_RX / Clock Line Holded");
 		return(0);
 	}
@@ -311,12 +312,12 @@ byte i2c_write(byte adr, byte *tx, byte len){
 		for(ret=0;ret<len;ret++){
 			i2c_SDA(0);						// (SDA)	L Out
 			i2c_SCL(0);						// (SCL)	L Out
-			if( i2c_tx(tx[ret]) == 0){
+			if( i2c_tx(tx[ret]) == 0 && ERROR_CHECK){
 				i2c_error("i2c_write / no ACK (Writing)");
 				return(0);
 			}
 		}
-	}else if( len>0 ){						// len=0の時はエラーにしないAM2320用
+	}else if( len>0 && ERROR_CHECK){		// len=0の時はエラーにしないAM2320用
 		i2c_error("i2c_write / no ACK (Address)");
 		return(0);
 	}
