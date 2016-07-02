@@ -4,13 +4,13 @@
 #
 # Copyright (c) 2016 Wataru KUNINO
 
-MAILTO="pi@localhost"                                       # メール送信先
+MAILTO="xbee@dream.jp"                                      # メール送信先
 TEMP_OFFSET=0 #(℃)                                         # 内部温度上昇補正
-MONITOR_START=5 #(時)                                       # 監視開始時刻
+MONITOR_START=7 #(時)                                       # 監視開始時刻
 MONITOR_END=21 #(時)                                        # 監視終了時刻
 REPORT_TIME=9 #(時)                                         # メール送信時刻
 REPORT_STAT=0                                               # メール送信状態
-ALLOWED_TERM=7 #(時間)                                      # 警報指定時間(22以下)
+ALLOWED_TERM=4 #(時間)                                      # 警報指定時間(22以下)
 ALLOWED_TEMP=35 #(℃)                                       # 警報指定温度
 
 # 初期化
