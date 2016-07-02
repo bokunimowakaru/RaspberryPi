@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Raspberry Pi による見守りシステム
+# Raspberry Pi による見守りシステム i.myMimamoriPi
 #
 # Copyright (c) 2016 Wataru KUNINO
 
