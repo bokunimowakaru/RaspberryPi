@@ -28,7 +28,12 @@ while true;do                                                   # ループ処�
     hour=`echo $time|cut -c4-5`                                 # 「時」をhourへ
     if [ ${hour:0:1} = 0 ]; then hour=${hour:1:1}; fi           # 先頭0を削除
     min=`echo $time|cut -c7-8`                                  # 「分」をminへ
-    temp=`../../gpio/raspi_bme280|cut -d"." -f1`                # 温度をtempへ
+	# 使用する温度センサに合わせて選択する(Apple PiはBOSCH BME 280)
+	temp=`../../gpio/raspi_temp|cut -d"." -f1`                  # 温度をtempへ(内蔵)
+#   temp=`../../gpio/raspi_bme280|cut -d"." -f1`                # BOSCH BME280使用時
+#	temp=`../../gpio/raspi_am2320|cut -d"." -f1`                # Aosong AM2320
+#	temp=`../../gpio/raspi_lps25h|cut -d"." -f1`                # STマイクロ LPS25H
+#	temp=`../../gpio/raspi_stts751|cut -d"." -f1`               # STマイクロ STTS751
     ((temp -= TEMP_OFFSET))                                     # 温度の補正
     IR=`tail -1 ir.txt|cut -c4-5`                               # 赤外線の操作を取得
     if [ ${IR:0:1} = 0 ]; then IR=${IR:1:1}; fi                 # 先頭0を削除
