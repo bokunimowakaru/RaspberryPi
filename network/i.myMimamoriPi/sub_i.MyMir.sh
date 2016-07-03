@@ -10,7 +10,7 @@ PID=`pidof raspi_ir_in`
 kill ${PID} >& /dev/null
 while true;do
 IR=`../../gpio/raspi_ir_in 4`
-if [ -z ${IR} ]; then
+if [[ -z ${IR} ]]; then
 	echo "GPIOエラー：インストールまたは接続、実行方法が不適切です"
 	echo
 	echo "(1) setup.shをしましたか？"
