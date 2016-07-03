@@ -17,7 +17,7 @@ echo "GPIO、赤外線リモコン受信、I2C通信ソフトのコンパイル�
 git pull
 cd ../../gpio
 make
-cd ../../i.myMimamoriPi
+cd ../network/i.myMimamoriPi
 
 echo
 echo "sSMTPとMuttのインストールを開始します"
