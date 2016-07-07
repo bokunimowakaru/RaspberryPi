@@ -71,7 +71,7 @@ while true;do                                                   # ループ処�
             echo -e ${text} | mutt -s ${mes} $MAILTO            # メール送信の実行
             WVDIAL=`pidof wvdial`                               # SORACOM確認
             if [ ${WVDIAL} ]; then                              # SORACOM接続中の時
-                ../soracom/soracom stop                         # SORACOM切断
+                sudo ../soracom/soracom stop                    # SORACOM切断
             fi
         fi
     fi
