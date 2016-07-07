@@ -57,11 +57,6 @@ while true;do                                                   # ループ処�
         fi                                                      # 警告状態の判定処理
         # 通知処理
         if [ ${mes} != 0 ]; then                                # 警告がある時
-            PING=`ping -c1 -W0 google.com|tr -d '\n'|\
-                awk -F'time=' '{print $2}'|cut -d' ' -f1`       # PING確認
-            if [ -z ${PING} ]; then                             # 応答が無かった時
-                ../soracom/soracom start                        # SORACOM接続
-            fi
             echo "[Mi] Message="${mes}                          # 動作表示(警告)
             text="Date,Time="${time}"\nTemperature="${temp}"℃\nIR="`tail -1 ir.txt`
             if [ ${trig} -ge 3 ]; then                          # 3時間以上のとき
@@ -69,10 +64,6 @@ while true;do                                                   # ループ処�
             fi
             echo -e ${text}                                     # 動作表示(メール)
             echo -e ${text} | mutt -s ${mes} $MAILTO            # メール送信の実行
-            WVDIAL=`pidof wvdial`                               # SORACOM確認
-            if [ ${WVDIAL} ]; then                              # SORACOM接続中の時
-                ../soracom/soracom stop                         # SORACOM切断
-            fi
         fi
     fi
     # 待機処理(分表示が変わるまで待機する)
