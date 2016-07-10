@@ -14,7 +14,7 @@ read PASS
 
 echo
 echo "GPIO、赤外線リモコン受信、I2C通信ソフトのコンパイルを行います"
-git pull
+#git pull
 cd ../../gpio
 make
 cd ../network/i.myMimamoriPi
