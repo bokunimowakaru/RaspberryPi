@@ -140,11 +140,6 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 					}
 					data[i]=in;
 				}
-				if(data_len>16 && data_len<=24){
-					in=data[2];
-					data[2]=data[1];
-					data[1]=in;
-				}
 			}
 			symbol_len = (3*len_off)/2;
 			det=IR_IN_ON;
