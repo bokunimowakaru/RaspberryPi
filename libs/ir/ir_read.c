@@ -19,6 +19,8 @@
 #define AEHA		0
 #define NEC			1
 #define SIRC		2
+#define AUTO		255					// 2016/07/16 自動モードの追加
+//	#define DEBUG
 
 extern FILE *fgpio;
 extern char buf[],gpio[],dir[];
@@ -74,31 +76,82 @@ int ir_sens(byte det){
 }
 
 /* 赤外線信号読み取りシンプル */
-int ir_read(byte *data, const byte data_num, const byte mode){
+int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解除
 	int i,bit;
 	int data_len= -1;				// Irデータのビット数
 	int len, data_wait;
 	int	len_on=0,len_off=0;			// 信号長(ループカウント)
 	int symbol_len, noise;			// 判定用シンボル長
 	byte det = IR_IN_OFF;			// 判定時の入力信号レベル(SIRC対応)
-	byte in;
+	byte in=0;
 
+	if(data_num<2) return( -3 );			/* 入力不備 */
 	/* SYNC_ON検出 */
-	len_on = ir_sens(IR_IN_ON);		// 受光待ち
+	len_on = ir_sens(IR_IN_ON);	// 受光待ち
 	if( len_on < 0 ) return( -1 );			/* タイムアウト */
 	/* SYNC_OFF検出 */
 	len_off = ir_sens(IR_IN_OFF);
 	if( len_off < 0 ) return( -2 );			/* エラー */
-	/* モード設定*/
-	symbol_len = len_off/2;
+	
+	/* モード設定 (SIRCについては最初の1ビットに遅延が許されないので、初期の遅延を最小化する)*/
+	if( mode == AUTO){
+		if( len_off < 1200 ){
+			mode=SIRC;
+		}else if( len_off < 3000 ) mode =AEHA; else mode =NEC;
+	}
 	switch( mode ){
+		case SIRC: 					// H(4T) + L(1T)	4:1
+			micros_0();
+			for(bit=0;bit<7;bit++){
+				len = ir_sens( IR_IN_ON );
+				if( len > 225 && len < 1800){
+					if( len < 900 ){
+						in = in>>1;
+						in += 0;
+					}else{
+						in = in>>1;
+						in += 128;
+					}
+				}else break;
+			}
+			in >>= 1;
+			data[0]=in;
+			if(bit==7){
+				bit=0;
+				for(i=1;i<3;i++){
+					in = 0;
+					for(bit=0;bit<8;bit++){
+						len = ir_sens( IR_IN_ON );
+						if( len > 225 && len < 1800){
+							if( len < 900 ){
+								in = in>>1;
+								in += 0;
+							}else{
+								in = in>>1;
+								in += 128;
+							}
+						}else{
+							in = in>>(8 - bit);
+							data[i]=in;
+							data_len = i * 8 + bit;
+							i = data_num -1;	// break for i
+							bit=7;				// break for bit
+						}
+					}
+					data[i]=in;
+				}
+				if(data_len>16 && data_len<=24){
+					in=data[2];
+					data[2]=data[1];
+					data[1]=in;
+				}
+			}
+			symbol_len = (3*len_off)/2;
+			det=IR_IN_ON;
+			break;
 		case NEC:					// H(16T) + L(8T)	2:1
 			symbol_len = len_off/4;
 			det=IR_IN_OFF;
-			break;
-		case SIRC: 					// H(4T) + L(1T)	4:1
-			det=IR_IN_ON;
-			symbol_len = (3*len_off)/2;
 			break;
 		case AEHA:					// H(8T) + L(4T)	2:1
 		default:
@@ -107,37 +160,49 @@ int ir_read(byte *data, const byte data_num, const byte mode){
 			break;
 		
 	}
-	micros_0();
-	/* データー読取り*/
-	data_wait = 2 * symbol_len;		// 終了検出するシンボル長
-	noise = symbol_len /4;			// ノイズと判定するシンボル長
-	for(i=0;i<data_num;i++){
-		in = 0;
-		for(bit=0;bit<8;bit++){
-			len = ir_sens( det );
-			if( len > noise && len < data_wait){
-				if( len < symbol_len ){
-					in = in>>1;
-					in += 0;
+	if(det==IR_IN_OFF){
+		micros_0();
+		/* データー読取り*/
+		data_wait = 2 * symbol_len;		// 終了検出するシンボル長
+		noise = symbol_len /4;			// ノイズと判定するシンボル長
+		for(i=0;i<data_num;i++){
+			in = 0;
+			for(bit=0;bit<8;bit++){
+				len = ir_sens( IR_IN_OFF );	// ir_sens( det )
+				if( len > noise && len < data_wait){
+					if( len < symbol_len ){
+						in = in>>1;
+						in += 0;
+					}else{
+						in = in>>1;
+						in += 128;
+					}
 				}else{
-					in = in>>1;
-					in += 128;
+					in = in>>(8 - bit);
+					data[i]=in;
+					data_len = i * 8 + bit;
+					i = data_num -1;	// break for i
+					bit=7;				// break for bit
 				}
-			}else{
-				in = in>>(8 - bit);
-				data[i]=in;
-				data_len = i * 8 + bit;
-				i = data_num -1;	// break for i
-				bit=7;				// break for bit
 			}
+			data[i]=in;
 		}
-		data[i]=in;
 	}
 	#ifdef DEBUG	//1234567890
+		printf("Mode    = %d",mode);
+		switch(mode){
+			case AEHA: printf(" (AEHA)\n"); break; 
+			case NEC : printf(" (NEC )\n"); break; 
+			case SIRC: printf(" (SIRC)\n"); break; 
+			default  : printf(" (UNKNOWN)\n"); break; 
+		}
+		printf("Detector= %d",det);
+		if(det==IR_IN_OFF) printf(" (IR_IN_OFF)\n"); else printf(" (IR_IN_ON)\n");
 		printf("SYNC LEN= %d\n",len_on+len_off);
 		printf("SYNC ON = %d\n",len_on);
 		printf("SYNC OFF= %d\n",len_off);
 		printf("SYMOL   = %d\n",symbol_len);
+		printf("DATA LEN= %d\n",data_len);
 	#endif // DEBUG
 	return(data_len);
 }

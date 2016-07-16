@@ -9,11 +9,12 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
 
     使用例：
 
-        $ raspi_ir_in 17          GIPOポート17から赤外線リモコン信号(AEHA)を取得
+        $ raspi_ir_in 17          GIPOポート17から赤外線リモコン信号を取得
         $ raspi_ir_in 17 -1       GIPOポート17を解放
         $ raspi_ir_in 17 0        AEHA方式(Panasonic,Sharp)のリモコン信号を取得
         $ raspi_ir_in 17 1        NEC方式(Onkyo)のリモコン信号を取得
         $ raspi_ir_in 17 2        SIRC方式(SONY)のリモコン信号を取得
+        $ raspi_ir_in 17 255      方式を自動選択してからリモコン信号を取得
         $ raspi_ir_in 17 0 10     10秒間、待ち続けて、信号が無ければタイムアウト
 
     応答値(stdio)
@@ -30,7 +31,7 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
 #include <stdlib.h>
 #include <unistd.h>         // usleep用
 
-#define IR_MODE   	0      	// 外線信号のモード（0はAEHA方式）
+#define IR_MODE   	255     // 外線信号のモード（0はAEHA方式、255は自動）
     						// enum IR_TYPE{AEHA=0,NEC=1,SIRC=2};
 #define TIMEOUT     -1      // 受信のタイムアウト設定（秒）、-1で∞
 #define DATA_SIZE   32      // 受信データサイズ（バイト）
@@ -113,6 +114,7 @@ int main(int argc,char **argv){
             case 0:
             case 1:
             case 2:
+            case 255:
                 mode=value;
                 break;
             default:
@@ -192,7 +194,10 @@ int main(int argc,char **argv){
 			}
 	    }
 		value = ir_read(data,DATA_SIZE,mode);
-		if( value > 0 ) value /= 8;
+		if( value > 0 ){
+			if(value%8) value += 8;
+			value /= 8;
+		}
 		#ifdef DEBUG
 		else printf("Detected noise (%d)\n",value);
 		#endif
