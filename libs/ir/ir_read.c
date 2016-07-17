@@ -162,8 +162,8 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 	if(det==IR_IN_OFF){
 		micros_0();
 		/* データー読取り*/
-		data_wait = 2 * symbol_len;		// 終了検出するシンボル長
-		noise = symbol_len /4;			// ノイズと判定するシンボル長
+		data_wait = 3 * symbol_len;		// 終了検出するシンボル長
+		noise = symbol_len /6;			// ノイズと判定するシンボル長
 		for(i=0;i<data_num;i++){
 			in = 0;
 			for(bit=0;bit<8;bit++){
