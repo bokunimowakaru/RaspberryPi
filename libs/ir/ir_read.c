@@ -20,7 +20,7 @@
 #define NEC			1
 #define SIRC		2
 #define AUTO		255					// 2016/07/16 自動モードの追加
-//	#define DEBUG
+	#define DEBUG
 
 extern FILE *fgpio;
 extern char buf[],gpio[],dir[];
@@ -84,7 +84,11 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 	int symbol_len, noise;			// 判定用シンボル長
 	byte det = IR_IN_OFF;			// 判定時の入力信号レベル(SIRC対応)
 	byte in=0;
-
+	#ifdef DEBUG
+		int t[1024];
+		int t_i=0;
+	#endif
+	
 	if(data_num<2) return( -3 );			/* 入力不備 */
 	/* SYNC_ON検出 */
 	len_on = ir_sens(IR_IN_ON);	// 受光待ち
@@ -144,13 +148,13 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 			symbol_len = (3*len_off)/2;
 			det=IR_IN_ON;
 			break;
-		case NEC:					// H(16T) + L(8T)	2:1
-			symbol_len = len_off/4;
+		case NEC:						// H(16T) + L(8T)	2:1
+			symbol_len = len_off/4;		// ON(1T)+OFF(3T) 判定 2T ∴ 8T -> 2T
 			det=IR_IN_OFF;
 			break;
-		case AEHA:					// H(8T) + L(4T)	2:1
+		case AEHA:						// H(8T) + L(4T)	2:1
 		default:
-			symbol_len = len_off/2;
+			symbol_len = len_off/2;		// ON(1T)+OFF(3T) 判定 2T ∴ 4T -> 2T
 			det=IR_IN_OFF;
 			break;
 		
@@ -172,18 +176,28 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 						in = in>>1;
 						in += 128;
 					}
+					#ifdef DEBUG
+						t[t_i]=len;
+						t_i++;			// if(t_i>1023) t_i=1023;
+					#endif
+
 				}else{
 					in = in>>(8 - bit);
 					data[i]=in;
 					data_len = i * 8 + bit;
 					i = data_num -1;	// break for i
 					bit=7;				// break for bit
+					#ifdef DEBUG
+						t[t_i]=len;
+						t_i++; if(t_i>1023) exit(-99);
+					#endif
 				}
 			}
 			data[i]=in;
 		}
 	}
 	#ifdef DEBUG	//1234567890
+		printf("------------------------ DEBUG ----------------------\n");
 		printf("Mode    = %d",mode);
 		switch(mode){
 			case AEHA: printf(" (AEHA)\n"); break; 
@@ -198,6 +212,17 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 		printf("SYNC OFF= %d\n",len_off);
 		printf("SYMOL   = %d\n",symbol_len);
 		printf("DATA LEN= %d\n",data_len);
+		len=data_len/8;
+		if(data_len%8)len++;
+		printf("data[%02d]= {%02X",len,data[0]);
+		for(i=1;i<len;i++) printf(",%02X",data[i]);
+		printf("}\n");
+		for(i=0;i<t_i;i++){
+			printf("%4d ",t[i]);
+			if(i%8==7)printf("\n");
+		}
+		printf("\n");
 	#endif // DEBUG
+	if(data_len<16)data_len=0;
 	return(data_len);
 }
