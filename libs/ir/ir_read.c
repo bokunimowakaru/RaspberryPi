@@ -199,8 +199,8 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 			data[i]=in;
 		}
 	}
-	debug_exit:
 	#ifdef DEBUG	//1234567890
+		debug_exit:
 		printf("------------------------ DEBUG ----------------------\n");
 		printf("Mode    = %d",mode);
 		switch(mode){
@@ -227,6 +227,39 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 		}
 		printf("\n");
 	#endif // DEBUG
-	if(data_len<16)data_len=0;
+	/* データの有効性のチェック 共通 */
+	if(data_len<16)data_len=-2;					// 2バイトに満たないのは無効
+	if(data[0]==0 && data[1]==0) data_len=-3;	// メーカーコード00
+	/*  有効性のチェック AEHA */
+	switch( mode ){
+		case AEHA:
+			in=(	data[0]^
+					(data[0]>>4)^
+					data[1]^
+					(data[1]>>4)^
+					data[2]
+				)&0x0F;
+			if( in ){
+				data_len=-4;	// メーカーコードのパリティ確認
+				#ifdef DEBUG
+					printf("AEHA ERR= %02X ##############################\n",in);
+				#endif // DEBUG
+			}
+			break;
+		case NEC:
+			in=(	data[2]^
+					data[3]^
+					0xFF
+				)&0xFF;
+			if( in ){
+				data_len=-5;	// データのパリティ確認
+				#ifdef DEBUG
+					printf("NEC  ERR= %02X ##############################\n",in);
+				#endif // DEBUG
+			}
+			break;
+		default:
+			break;
+	}
 	return(data_len);
 }
