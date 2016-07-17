@@ -17,9 +17,9 @@
 */
 
 #define IR_OUT		12				// 赤外線LEDの接続ポート
-#define IR_OUT_OFF	LOW				// 赤外線LED非発光時の出力値
-#define IR_OUT_ON	HIGH			// 赤外線LED発光時の出力値
-#define DATA_SIZE	16				// データ長(byte),4の倍数、16以上
+#define IR_OUT_OFF	0				// 赤外線LED非発光時の出力値
+#define IR_OUT_ON	1				// 赤外線LED発光時の出力値
+//	#define DATA_SIZE   32      	// 送信最大データサイズ（バイト）
 
 #define FLASH_AEHA_TIMES	16	// シンボルの搬送波点滅回数（ＡＥＨＡ）
 #define FLASH_NEC_TIMES		22	// シンボルの搬送波点滅回数（ＮＥＣ）
@@ -30,8 +30,26 @@
 #define NEC			1
 #define SIRC		2
 
+#include <unistd.h>							// sleep
+
+// 置換	usleep 
+					//   012345678901234567890
+extern char gpio[]; 	// ="/sys/class/gpio/gpio00/value";
+
+byte digitalWrite(byte port,byte value){
+    gpio[20]='\0';
+	sprintf(gpio,"%s%d/value",gpio,port);
+    fgpio = fopen(gpio, "w");
+    if(fgpio){
+	    fprintf(fgpio,"%d\n",value);
+	    fclose(fgpio);
+	    return (byte)value;
+	}
+	return 255;
+}
+
 void ir_init(void){
-	pinMode(IR_OUT, OUTPUT);
+//	pinMode(IR_OUT, OUTPUT);
 	digitalWrite(IR_OUT, IR_OUT_OFF);
 }
 
@@ -39,18 +57,18 @@ void ir_init(void){
 void ir_flash(byte times){
 	while(times){
 		times--;
-		delayMicroseconds(12);				// 13 uS
+		usleep(12);				// 13 uS
 		digitalWrite(IR_OUT, IR_OUT_ON);
-		delayMicroseconds(7);				// 13 uS
+		usleep(7);				// 13 uS
 		digitalWrite(IR_OUT, IR_OUT_OFF);
 	}
 }
 void ir_wait(byte times){
 	while(times){
 		times--;
-		delayMicroseconds(12);				// 13 uS
+		usleep(12);				// 13 uS
 		digitalWrite(IR_OUT, IR_OUT_OFF);
-		delayMicroseconds(7);				// 13 uS
+		usleep(7);				// 13 uS
 		digitalWrite(IR_OUT, IR_OUT_OFF);
 	}
 }
@@ -59,8 +77,8 @@ void ir_wait(byte times){
 void ir_send(byte *data, const byte data_len, const byte ir_type ){
 	byte i,j,t;
 	byte b;
-	byte out;
 	
+	if(data_len<2) return;
 	switch( ir_type ){
 		case NEC:
 			ir_flash( 8 * FLASH_NEC_TIMES );	// send 'SYNC_H'
@@ -83,8 +101,17 @@ void ir_send(byte *data, const byte data_len, const byte ir_type ){
 				t=5;						// 送信済シンボル基本単位(SYNCで送信)
 				ir_flash( 4 * FLASH_SIRC_TIMES );	// send 'SYNC_H'
 				ir_wait(      FLASH_SIRC_TIMES );	// send 'SYNC_L'
-
-				for( i = 0 ; i < data_len ; i++){
+				for( b = 0 ; b < 7 ; b++ ){
+					if( data[0] & (0x01 << b) ){
+						ir_flash( 2 * FLASH_SIRC_TIMES );
+						t +=3 ;
+					}else{
+						ir_flash( FLASH_SIRC_TIMES );
+						t +=2 ;
+					}
+					ir_wait( FLASH_SIRC_TIMES );
+				}
+				for( i = 1 ; i < data_len ; i++){
 					for( b = 0 ; b < 8 ; b++ ){
 						if( data[i] & (0x01 << b) ){
 							ir_flash( 2 * FLASH_SIRC_TIMES );

@@ -43,9 +43,12 @@ void micros_0(){
 
 byte digitalRead(){
     fgpio = fopen(gpio, "r");
-    fgets(buf, S_NUM, fgpio);
-    fclose(fgpio);
-    return (byte)atoi(buf);
+    if(fgpio){
+		fgets(buf, S_NUM, fgpio);
+    	fclose(fgpio);
+    	return (byte)atoi(buf);
+    }
+    return 255;
 }
 
 /* シンボル読取り*/
