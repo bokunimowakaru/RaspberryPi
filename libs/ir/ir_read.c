@@ -20,7 +20,7 @@
 #define NEC			1
 #define SIRC		2
 #define AUTO		255					// 2016/07/16 自動モードの追加
-	#define DEBUG
+//	#define DEBUG
 
 extern FILE *fgpio;
 extern char buf[],gpio[],dir[];
@@ -189,13 +189,17 @@ int ir_read(byte *data, const byte data_num, byte mode){	// mode の constを解
 					bit=7;				// break for bit
 					#ifdef DEBUG
 						t[t_i]=len;
-						t_i++; if(t_i>1023) exit(-99);
+						t_i++; if(t_i>1023){
+							printf("DEBUG:out of memory\n");
+							goto debug_exit;
+						}
 					#endif
 				}
 			}
 			data[i]=in;
 		}
 	}
+	debug_exit:
 	#ifdef DEBUG	//1234567890
 		printf("------------------------ DEBUG ----------------------\n");
 		printf("Mode    = %d",mode);
