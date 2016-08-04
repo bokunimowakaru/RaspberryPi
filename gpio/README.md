@@ -1,52 +1,52 @@
-# Raspberry Pi�p GPIO �o�̓v���O����  raspi_gpo
+# Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
 
-�w�肵��GPIO�̃|�[�g���o�͂ɐݒ肵�A�w�肵���l�ɕύX���邽�߂̃v���O�����ł��B
+指定したGPIOのポートを出力に設定し、指定した値に変更するためのプログラムです。
 
-    �g�����F
+    使い方：
 
-        $ raspi_gpo �|�[�g�ԍ� �ݒ�l
+        $ raspi_gpo ポート番号 設定値
 
-    �g�p��F
+    使用例：
 
-        $ raspi_gpo 4 1         GIPO�|�[�g4��1(H���x��)���o��
-        $ raspi_gpo 18 0        GIPO�|�[�g18��0(L���x��)���o��
-        $ raspi_gpo 18 -1       GIPO�|�[�g18���g�p�ɖ߂�
+        $ raspi_gpo 4 1         GIPOポート4に1(Hレベル)を出力
+        $ raspi_gpo 18 0        GIPOポート18に0(Lレベル)を出力
+        $ raspi_gpo 18 -1       GIPOポート18を非使用に戻す
 
-    �����l
-        0       L���x�����o�͊���
-        1       H���x�����o�͊���
-        -1      ��g�p�ɐݒ芮��
-        9        �G���[(���e��stderr�o��)
+    応答値
+        0       Lレベルを出力完了
+        1       Hレベルを出力完了
+        -1      非使用に設定完了
+        9        エラー(内容はstderr出力)
 
-# Raspberry Pi�p GPIO ���̓v���O����  raspi_gpi
+# Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 
-�w�肵��GPIO�̃|�[�g����͂ɐݒ肵�A���͒l���擾����v���O�����ł��B
+指定したGPIOのポートを入力に設定し、入力値を取得するプログラムです。
 
-    �g�����F
+    使い方：
 
-        $ raspi_gpi �|�[�g�ԍ� �ݒ�l
+        $ raspi_gpi ポート番号 設定値
 
-    �g�p��F
+    使用例：
 
-        $ raspi_gpi 4           GIPO�|�[�g4�̓��͒l���擾
-        $ raspi_gpi 18          GIPO�|�[�g18�̓��͒l���擾
-        $ raspi_gpi 18 -1       GIPO�|�[�g18���g�p�ɖ߂�
+        $ raspi_gpi 4           GIPOポート4の入力値を取得
+        $ raspi_gpi 18          GIPOポート18の入力値を取得
+        $ raspi_gpi 18 -1       GIPOポート18を非使用に戻す
 
-    �����l
-        0       L���x�����擾
-        1       H���x�����擾
-        -1      ��g�p�ɐݒ芮��
-        9        �G���[(���e��stderr�o��)
+    応答値
+        0       Lレベルを取得
+        1       Hレベルを取得
+        -1      非使用に設定完了
+        9        エラー(内容はstderr出力)
 
 # Web Site
 
 	http://blogs.yahoo.co.jp/bokunimowakaru/55117684.html
 
 ----------------------------------------------------------------
-���C�Z���X�E���쌠�\��
+ライセンス・著作権表示
 
-�{�����𕡐��E���ρE�Ĕz�z����ꍇ�͒��쌠�\�����K�v�ł��B
+本資料を複製・改変・再配布する場合は著作権表示が必要です。
 
-                       Copyright (C) 2015 ����j (Wataru KUNINO)
+                       Copyright (C) 2015 国野亘 (Wataru KUNINO)
                        http://www.geocities.jp/bokunimowakaru/
 ----------------------------------------------------------------
