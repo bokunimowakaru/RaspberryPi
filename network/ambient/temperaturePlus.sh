@@ -11,9 +11,9 @@ INTERVAL=180                                                # 測定間隔
 
 while true;do                                               # 永久に繰り返し
 temp=`cat /sys/devices/virtual/thermal/thermal_zone0/temp`  # 温度を取得
-DEC=`expr ${temp} / 1000`                                   # 気温に換算(整数部)
-FRAC=`expr ${temp} / 100 - ${DEC} \* 10`                    # 気温に換算(小数部)
-DEC=`expr ${DEC} - ${TEMP_OFFSET}`                          # 温度補正
+TEMP=$(( $temp / 100 - $TEMP_OFFSET * 10 ))                 # 温度に変換(10倍値)
+DEC=$(( $TEMP / 10))                                        # 整数部
+FRAC=$(( $TEMP - $DEC * 10))                                # 小数部
 echo -n "Temperature = ${DEC}.${FRAC} C"                    # 温度測定結果の表示
 DATA=\"d1\"\:\"${DEC}.${FRAC}\"                             # データ生成
 TIME=`ping -c1 google.com|tr -d '\n'|\
