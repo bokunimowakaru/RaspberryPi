@@ -7,7 +7,7 @@ AmbientChannelId=100                                        # チャネルID(Amb
 AmbientWriteKey="0123456789abcdef"                          # ライトキー(16桁・同上)
 HOST="54.65.206.59"                                         # 送信先アドレス(変更不要)
 TEMP_OFFSET=25                                              # CPUの温度上昇値(要調整)
-INTERVAL=10                                                 # 測定間隔
+INTERVAL=30                                                 # 測定間隔(1日3000件以下)
 
 while true;do                                               # 永久に繰り返し
 temp=`cat /sys/devices/virtual/thermal/thermal_zone0/temp`  # 温度を取得
