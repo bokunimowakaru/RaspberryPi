@@ -12,7 +12,7 @@ INTERVAL=15                                                 # 測定間隔
 while true;do                                               # 永久に繰り返し
 TEMP=`curl -s \
 "${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=1" \
-|cut -d":" -f2|cut -d"," -f1`
-echo "Temprature =" $TEMP
+|cut -d":" -f2|cut -d"," -f1`                               # 温度データをダウンロード
+echo "Temprature =" $TEMP                                   # 取得結果を表示
 sleep ${INTERVAL}                                           # 測定間隔の待ち時間
 done                                                        # 繰り返し
