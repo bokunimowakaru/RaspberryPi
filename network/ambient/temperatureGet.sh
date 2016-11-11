@@ -27,7 +27,7 @@ TEMP=`echo $JSON|cut -d":" -f2|cut -d"," -f1`           # 温度データを抽�
 echo -n $DATE
 echo -n ", Temprature =" $TEMP                          # 取得結果を表示
 if [ "$DATE" != "$DATE_" ];then                         # 前回の日時と異なるとき
-    echo -E ${DEV},$TEMP > /dev/udp/${IP}.255/1024      # UDPで送信する
+    sudo echo -E ${DEV},$TEMP > /dev/udp/${IP}.255/1024 # UDPで送信する
     echo -E ${DATE}, $TEMP >> log_${DEV}.csv            # ファイルへ保存する
     DATE_="$DATE"                                       # 日時のバックアップ
     echo " >>log_${DEV}.csv"                            # データ保存表示
