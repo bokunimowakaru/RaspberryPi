@@ -7,7 +7,7 @@ AmbientChannelId=100                                    # チャネルID(Ambient
 AmbientReadKey="0123456789abcdef"                       # Readキー(16桁・同上)
 HOST="54.65.206.59"                                     # 送信先アドレス(変更不要)
 TEMP_OFFSET=25                                          # CPUの温度上昇値(要調整)
-INTERVAL=15                                             # 測定間隔
+INTERVAL=60                                             # 測定間隔
 DATE_="2000/01/01 00:00:00"                             # 前回の日付
 DEV="ambie_1"                                           # デバイス名
 
