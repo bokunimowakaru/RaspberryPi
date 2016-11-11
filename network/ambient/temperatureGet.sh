@@ -24,7 +24,7 @@ DATE=`echo $JSON\
 TEMP=`echo $JSON|cut -d":" -f2|cut -d"," -f1`           # 温度データを抽出
 if [ -n "$DATE" ];then                                  # データがあるとき
     echo -n $DATE
-    echo -n ", Temprature =" $TEMP                      # 取得結果を表示
+    echo -n ", Temperature =" $TEMP                     # 取得結果を表示
     if [ "$DATE" != "$DATE_" ];then                     # 前回の日時と異なるとき
         echo -E ${DATE}, $TEMP >> log_${DEV}.csv        # ファイルへ保存する
         DATE_="$DATE"                                   # 日時のバックアップ
