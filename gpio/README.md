@@ -47,6 +47,6 @@
 
 本資料を複製・改変・再配布する場合は著作権表示が必要です。
 
-                       Copyright (C) 2015 国野亘 (Wataru KUNINO)
+                  Copyright (C) 2015-2016 国野亘 (Wataru KUNINO)
                        http://www.geocities.jp/bokunimowakaru/
 ----------------------------------------------------------------
