@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ambientから温度データを受信し、ファイルへ保存する。
+# Ambientからデータを受信し、表示する。
 # [データ取得元=Ambient(https://ambidata.io/)]
 # Copyright (c) 2016 Wataru KUNINO
 
@@ -9,7 +9,9 @@ HOST="ambidata.io"                                      # Ambientのアドレス
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: ${0} number"
-    exit
+    NUM=3
+else
+    NUM=${1}
 fi
 if [ -f ~/.ambientkeys ];then                           # 設定ファイル確認
     source ~/.ambientkeys                               # 設定ファイルロード済み
@@ -25,7 +27,7 @@ fi
 echo "Ambient Channel Id =" $AmbientChannelId           # チャンネルID表示
 
 curl -s \
-"${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${1}"\
+"${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${NUM}"\
 | tr -d "[{" \
 | tr "}" "\n" \
 | while read JSON; do
