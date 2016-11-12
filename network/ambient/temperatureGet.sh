@@ -9,9 +9,19 @@ HOST="ambidata.io"                                      # Ambientのアドレス
 INTERVAL=60                                             # 測定間隔
 DATE_="2000/01/01 00:00:00"                             # 前回の日付
 DEV="ambie_1"                                           # デバイス名
-if [ -f ~/.ambientkey ];then                            # 設定ファイル確認
-    source ~/.ambientkeys
+
+if [ -f ~/.ambientkeys ];then                           # 設定ファイル確認
+    source ~/.ambientkeys                               # 設定ファイルロード済み
 fi
+if [ $AmbientChannelId -le 100 ];then
+    echo "AmbientからチャンネルIDとライトキー、リードキーを取得してください"
+    echo "「.ambientkeys」へ以下のように設定しておくと便利です。"
+    echo "AmbientChannelId=XXX"
+    echo "AmbientReadKey=\"0123456789abcdef\""
+    echo "AmbientWriteKey=\"0123456789abcdef\""
+    exit -1
+fi
+echo "Ambient Channel Id =" $AmbientChannelId           # チャンネルID表示
 
 while true;do                                           # 永久に繰り返し
 JSON=`curl -s \
