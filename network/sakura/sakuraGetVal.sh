@@ -48,4 +48,3 @@ while true; do
         echo $VALUE
     fi
 done
-kill $PID
