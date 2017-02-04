@@ -28,7 +28,7 @@ Raspberry Pi用 I2C 16bit ADコンバータ TI ADS1113 ADS1114 ADS1115
 //  #define DEBUG
 
 typedef unsigned char byte; 
-byte address=0x48;
+byte i2c_address=0x48;
 
 int16_t i2c_adc(int ain){
     byte data[2];
@@ -38,15 +38,15 @@ int16_t i2c_adc(int ain){
     config[1]=0xC5;                         // AIN=null 2V Single
     config[1] |= (byte)((0x3 & ain)<<4);    // AINポート設定
     config[2]=0x83;                         // 128SPS
-    i2c_write(address,config,3);            // レジスタ 0x03設定
+    i2c_write(i2c_address,config,3);        // レジスタ 0x03設定
     
     delay(8);                               // 測定待ち8ms (1/128 sec.)
     config[0]=0x00;                         // 変換
-    i2c_write(address,config,1);            // レジスタ 0x03設定
+    i2c_write(i2c_address,config,1);        // レジスタ 0x03設定
     
     delay(8);                               // 測定待ち8ms
     memset(data,0,2);
-    i2c_read(address,data,2);               // 測定の実行
+    i2c_read(i2c_address,data,2);           // 測定の実行
     return (((int16_t)data[0])<<8)|(int16_t)data[1];
 }
 
@@ -54,11 +54,12 @@ int main(int argc,char **argv){
     int i,ch=4;
     int16_t adc;
     
-    if( argc >= 2 ) address=(byte)strtol(argv[1],NULL,16);
+    if( argc >= 2 ) i2c_address=(byte)strtol(argv[1],NULL,16);
+    if(i2c_address>=0x80) i2c_address>>=1;
     if( argc == 3 ) ch=atoi(argv[2]);
     if( ch<=0 || ch>4 ) ch=4;
     #ifdef DEBUG
-        printf("address =0x%02X\n",address);
+        printf("address =0x%02X\n",i2c_address);
         printf("channels=%d\n",ch);
     #endif
     

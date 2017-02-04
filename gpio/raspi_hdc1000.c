@@ -10,7 +10,7 @@ Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の�
 I2C接続の温湿度センサの値を読み取る
 TI社 HDC1000
 
-                                        Copyright (c) 2014-2016 Wataru KUNINO
+                                        Copyright (c) 2014-2017 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
 
@@ -22,20 +22,13 @@ TI社 HDC1000
 #include <string.h>
 #include "../libs/soft_i2c.h"
 typedef unsigned char byte; 
-byte address=0x40;			// HDC1000 の I2C アドレス 
-
-int ahex2i(char c){
-    if(c>='0' && c<='9') return c-'0';
-    if(c>='a' && c<='f') return c-'a'+10;
-    if(c>='A' && c<='F') return c-'A'+10;
-    return -1;
-}
+byte i2c_address=0x40;				// HDC1000 の I2C アドレス 
 
 uint16_t _getReg(byte data){
 	byte rx[2];
-    i2c_write(address,&data,1);		// 書込みの実行
+    i2c_write(i2c_address,&data,1);	// 書込みの実行
     delay(10);						// 6.5ms以上
-    i2c_read(address,rx,2);			// 読み出し
+    i2c_read(i2c_address,rx,2);		// 読み出し
     return (((uint16_t)rx[0])<<8)|((uint16_t)rx[1]);
 }
 
@@ -55,26 +48,20 @@ float getHum(){
 
 int main(int argc,char **argv){
     byte config[3];
-    if( argc == 2 ){
-        if( strlen(argv[1]) == 2 ){
-            address=(byte)ahex2i(argv[1][0]);
-            if(address>15) argc=0;
-            else address<<=4;
-            address+=(byte)ahex2i(argv[1][1]);
-            if(address>=0x80) address>>=1;
-        }else argc=0;
-    }
+
+    if( argc >= 2 ) i2c_address=(byte)strtol(argv[1],NULL,16);
+    if(i2c_address>=0x80) i2c_address>>=1;
     if( argc < 1 || argc > 2 ){
         fprintf(stderr,"usage: %s [i2c_address]\n",argv[0]);
         return -1;
     }
 
     i2c_init();
-	delay(18);					// 15ms以上
-    config[0]=0x02;					// 設定レジスタ 02
+	delay(18);							// 15ms以上
+    config[0]=0x02;						// 設定レジスタ 02
     config[1]=0x00;
     config[2]=0x00;
-    i2c_write(address,config,3);    // 書込みの実行
+    i2c_write(i2c_address,config,3);    // 書込みの実行
     delay(20);
 
     printf("%3.2f ",getTemp());

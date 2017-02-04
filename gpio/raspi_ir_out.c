@@ -17,7 +17,7 @@ Raspberry Pi用 赤外線リモコン送信プログラム  raspi_ir_out
     戻り値
         0       正常終了
         -1      異常終了
-                                        Copyright (c) 2015-2016 Wataru KUNINO
+                                        Copyright (c) 2015-2017 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
                                         
 WiringPiをインストールする方法
