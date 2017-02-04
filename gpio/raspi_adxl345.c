@@ -12,6 +12,7 @@ Raspberry Pi用 I2C 加速度センサ Analog Devices 社 ADXL345
 使い方
     ./raspi_adxl345                     デフォルトで動作
     ./raspi_adxl345 1D                  I2Cアドレスを0x1Dに設定
+    ./raspi_adxl345 53                  I2Cアドレスを0x53に設定(SDO=Lのとき)
 
                                         Copyright (c) 2016-2017 Wataru KUNINO
                                         http://www.geocities.jp/bokunimowakaru/
