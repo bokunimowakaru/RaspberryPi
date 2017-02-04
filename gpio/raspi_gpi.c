@@ -32,8 +32,8 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 #include <stdlib.h>
 #include <unistd.h>         // usleep用
 
-#define RasPi_1_REV 2       // Raspberry Pi 1 Type B の場合のリビジョン 通常=2
-#define RasPi_PORTS 26      // Raspberry Pi GPIO ピン数 26 固定
+#define RasPi_1_REV 2       // 初代Raspberry Pi Tyep B のときのリビジョン
+#define RasPi_PORTS 40      // Raspberry Pi GPIO ピン数 初代=26
 #define GPIO_RETRY  3       // GPIO 切換え時のリトライ回数
 #define S_NUM       8       // 文字列の最大長
 //  #define DEBUG               // デバッグモード
@@ -53,12 +53,15 @@ int main(int argc,char **argv){
         /* RasPi      pin 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16    */
         int pin_ports[]={-1,-1, 0,-1, 1,-1, 4,14,-1,15,17,18,21,-1,22,23,
         /*               17 18 19 20 21 22 23 24 25 26                      */
-                         -1,24,10,-1, 9,25,11, 8,-1, 7};
+                         -1,24,10,-1, 9,25,11, 8,-1, 7,
+                         -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
     #else
         /* Pi B Rev1  pin 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16    */
         int pin_ports[]={-1,-1, 2,-1, 3,-1, 4,14,-1,15,17,18,27,-1,22,23,
         /*               17 18 19 20 21 22 23 24 25 26                      */
-                         -1,24,10,-1, 9,25,11, 8,-1, 7};
+                         -1,24,10,-1, 9,25,11, 8,-1, 7,
+        /*               27 28 29 30 31 32 33 34 35 36 37 38 39 40          */
+                         -1,-1, 5,-1, 6,12,13,-1,19,16,26,20,-1,21};
     #endif
     
     if( argc < 2 || argc > 3 ){
