@@ -16,7 +16,7 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
     応答値(stdio)
         0       Lレベルを出力完了
         1       Hレベルを出力完了
-        -1      非使用に設定完了
+        NC      非使用に設定完了(NCまたは-1)
         9       エラー(エラー内容はstderr出力)
 
     戻り値
@@ -29,6 +29,7 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>         // usleep用
+#include <string.h>         // strcmp用
 
 #define RasPi_1_REV 2       // 初代Raspberry Pi Tyep B のときのリビジョン
 #define RasPi_PORTS 40      // Raspberry Pi GPIO ピン数 初代=26
@@ -66,7 +67,10 @@ int main(int argc,char **argv){
     }
     /* 第1引数portと第2引数valueの内容確認 */
     port = atoi(argv[1]);
-    value = atoi(argv[2]);
+    if(!strcmp(argv[2],"NC")) value=-1;
+    else if(!strcmp(argv[2],"LOW")) value=0;
+    else if(!strcmp(argv[2],"HIGH")) value=1;
+    else value = atoi(argv[2]);
     for(i=0;i<RasPi_PORTS;i++){
         if( pin_ports[i] == port ){
             #ifdef DEBUG

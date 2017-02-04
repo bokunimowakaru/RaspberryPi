@@ -136,6 +136,8 @@ int main(int argc,char **argv){
     /* 第2引数valueの内容確認 */
     if( argc >= 3 ){
         if(!strcmp(argv[2],"NC")) value=-1;
+        else if(!strcmp(argv[2],"LOW")) value=0;
+        else if(!strcmp(argv[2],"HIGH")) value=1;
         else if(!strcmp(argv[2],"PUP")) value=2;
         else value = atoi(argv[2]);
         switch( value ){
