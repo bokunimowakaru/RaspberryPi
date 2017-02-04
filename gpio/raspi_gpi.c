@@ -176,7 +176,9 @@ int main(int argc,char **argv){
                     return -1;
                 }
                 if( argc == 4 ){
-                    trig = atoi(argv[3]);
+                    if(!strcmp(argv[3],"LOW")) trig=0;
+                    else if(!strcmp(argv[3],"HIGH")) trig=1;
+                    else trig = atoi(argv[3]);
                     if( trig%2 != trig) trig=-1;
                 }
                 break;
