@@ -11,9 +11,12 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 
         $ raspi_gpi 4           GIPOポート4の入力値を取得
         $ raspi_gpi 18          GIPOポート18の入力値を取得
-        $ raspi_gpi 18 -1       GIPOポート18を非使用に戻す
+        $ raspi_gpi 18 PUP      GIPOポート18をプルアップに設定する(PUPまたは2)
+        $ raspi_gpi 18 NC       GIPOポート18を非使用に戻す(NCまたは-1)
         $ raspi_gpi 18 0        GIPOポート18が0になるまで待つ
         $ raspi_gpi 18 1        GIPOポート18が1になるまで待つ
+        $ raspi_gpi 18 PUP 0    GIPOポート18をプルアップし、0になるまで待つ
+        $ raspi_gpi 18 PUP 1    GIPOポート18をプルアップし、1になるまで待つ
 
     応答値(stdio)
         0       Lレベルを取得
@@ -31,6 +34,7 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>         // usleep用
+#include <string.h>         // strcmp用
 
 #define RasPi_1_REV 2       // 初代Raspberry Pi Tyep B のときのリビジョン
 #define RasPi_PORTS 40      // Raspberry Pi GPIO ピン数 初代=26
@@ -64,7 +68,7 @@ int main(int argc,char **argv){
                          -1,-1, 5,-1, 6,12,13,-1,19,16,26,20,-1,21};
     #endif
     
-    if( argc < 2 || argc > 3 ){
+    if( argc < 2 || argc > 4 ){
         fprintf(stderr,"usage: %s port [value]\n",argv[0]);
         printf("9\n");
         return -1;
@@ -84,42 +88,12 @@ int main(int argc,char **argv){
         printf("9\n");
         return -1;
     }
-    /* 第2引数valueの内容確認 */
-    if( argc == 3 ){
-        value = atoi(argv[2]);
-        switch( value ){
-            case -1:
-                fgpio = fopen("/sys/class/gpio/unexport","w");
-                if(fgpio){
-                    fprintf(fgpio,"%d\n",port);
-                    fclose(fgpio);
-                    #ifdef DEBUG
-                        printf("Disabled Port\n");
-                    #else
-                        printf("-1\n");
-                    #endif
-                    return 0;
-                }else{
-                    fprintf(stderr,"IO Error\n");
-                    printf("9\n");
-                    return -1;
-                }
-                break;
-            case 0:
-            case 1:
-                trig=value;
-                break;
-            default:
-                fprintf(stderr,"Unsupported Value Error, %d\n",value);
-                printf("9\n");
-                return -1;
-        }
-    }
     /* ポート番号の設定 */
     gpio[20]='\0';
     dir[20]='\0';
     sprintf(gpio,"%s%d/value",gpio,port);
     sprintf(dir,"%s%d/direction",dir,port);
+    
     /* ポート開始処理 */
     fgpio = fopen(gpio, "r");
     if( fgpio==NULL ){
@@ -157,10 +131,71 @@ int main(int argc,char **argv){
             }
         }
     }
+    fclose(fgpio);
+    
+    /* 第2引数valueの内容確認 */
+    if( argc >= 3 ){
+        if(!strcmp(argv[2],"NC")) value=-1;
+        else if(!strcmp(argv[2],"PUP")) value=2;
+        else value = atoi(argv[2]);
+        switch( value ){
+            case -1:
+                fgpio = fopen("/sys/class/gpio/unexport","w");
+                if(fgpio){
+                    fprintf(fgpio,"%d\n",port);
+                    fclose(fgpio);
+                    #ifdef DEBUG
+                        printf("Disabled Port\n");
+                    #else
+                        printf("-1\n");
+                    #endif
+                    return 0;
+                }else{
+                    fprintf(stderr,"IO Error\n");
+                    printf("9\n");
+                    return -1;
+                }
+                break;
+            case 0:
+            case 1:
+                trig=value;
+                break;
+            case 2:
+                fgpio = fopen(dir, "w");
+                if(fgpio){
+                    fprintf(fgpio,"high\n");
+                    fclose(fgpio);
+                    #ifdef DEBUG
+                        printf("Port Pulled Up\n");
+                    #endif
+                }else{
+                    fprintf(stderr,"IO Error\n");
+                    printf("9\n");
+                    return -1;
+                }
+                if( argc == 4 ){
+                    trig = atoi(argv[3]);
+                    if( trig%2 != trig) trig=-1;
+                }
+                break;
+            default:
+                fprintf(stderr,"Unsupported Value Error, %d\n",value);
+                printf("9\n");
+                return -1;
+        }
+    }
+    
     /* ポート入力処理 */
+    fgpio = fopen(gpio, "r");
+    if(fgpio==NULL ){
+        fprintf(stderr,"IO Error\n");
+        printf("9\n");
+        return -1;
+    }
     fgets(s, S_NUM, fgpio);
     value = atoi(s);
     fclose(fgpio);
+    
     /* 期待値trigの待ち受け処理 */
     if( trig >= 0 ){
         i=0;
@@ -170,9 +205,11 @@ int main(int argc,char **argv){
             value = atoi(s);
             i++;
             fclose(fgpio);
+            usleep(100000);
         }
         value = i;
     }
+    
     /* ポート状態の出力 */
     #ifdef DEBUG
         if( trig < 0 ) printf("%s = ",gpio);
