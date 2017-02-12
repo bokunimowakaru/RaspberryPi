@@ -65,6 +65,7 @@
         $ raspi_bme280 77       SDOピンをVDDIOに接続した場合
 
     温  湿  気  電  メーカ・型番    プログラム
+    度  度  圧  圧
     〇  〇  －  －  TI HDC1000      raspi_hdc1000.c 
     〇  〇  〇  －  BOSCH BME280    raspi_bme280.c 
     〇  －  〇  －  BOSCH BMP280    raspi_bme280.c 
