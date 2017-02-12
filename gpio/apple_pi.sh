@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2017 Wataru KUNINO
 #
-# /etc/rc.local‚Ö‰º‹L‚ğ’Ç‰Á‚·‚é‚Æ©“®“I‚É‹N“®‚·‚é
+# /etc/rc.localã¸ä¸‹è¨˜ã‚’è¿½åŠ ã™ã‚‹ã¨è‡ªå‹•çš„ã«èµ·å‹•ã™ã‚‹
 #       /home/pi/RaspberryPi/gpio/apple_pi.sh &
 
 while true; do
