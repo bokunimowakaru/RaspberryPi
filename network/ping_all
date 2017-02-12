@@ -1,0 +1,20 @@
+#!/bin/bash
+IP=`hostname -I|tr " " "\n"|grep -Eo '([0-9]*\.){3}[0-9]*'|grep -v "127.0."|head -1|cut -d. -f1-3`
+OS=`uname`
+i=1
+while [ ${i} -le 254 ]; do
+	# echo ${IP}.${i}
+	if [ "$OS" = "Linux" ]; then
+		sudo ping -c1 -W1 ${IP}.${i}|grep "time=" &
+		sleep 0.01
+		PID=`pidof ping`
+		if [ -n "$PID" ];then
+			sudo kill $PID
+		fi
+	else
+		sudo ping -n 1 -w 100 ${IP}.${i}|grep -a 'ms TTL='
+	fi
+	(( i++ ))
+done
+#arp|grep ":"
+exit 0
