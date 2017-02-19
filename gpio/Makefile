@@ -3,6 +3,7 @@ PROGS =	raspi_gpi \
 		raspi_gpo \
 		raspi_ir_in \
 		raspi_temp \
+		raspi_max6675
 
 all: $(PROGS)
 		gcc -Wall -O1 -c ../libs/soft_i2c.c -o soft_i2c.o
