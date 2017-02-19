@@ -5,17 +5,17 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
 
     使い方：
 
-        $ raspi_ir_in ポート番号 方式 秒数
+        $ ./raspi_ir_in ポート番号 方式 秒数
 
     使用例：
 
-        $ raspi_ir_in 17          GIPOポート17から赤外線リモコン信号を取得
-        $ raspi_ir_in 17 -1       GIPOポート17を解放
-        $ raspi_ir_in 17 0        AEHA方式(Panasonic,Sharp)のリモコン信号を取得
-        $ raspi_ir_in 17 1        NEC方式(Onkyo)のリモコン信号を取得
-        $ raspi_ir_in 17 2        SIRC方式(SONY)のリモコン信号を取得
-        $ raspi_ir_in 17 255      方式を自動選択してからリモコン信号を取得
-        $ raspi_ir_in 17 0 10     10秒間、待ち続けて、信号が無ければタイムアウト
+        $ ./raspi_ir_in 17          GIPOポート17から赤外線リモコン信号を取得
+        $ ./raspi_ir_in 17 -1       GIPOポート17を解放
+        $ ./raspi_ir_in 17 0        AEHA方式(Panasonic,Sharp)のリモコン信号を取得
+        $ ./raspi_ir_in 17 1        NEC方式(Onkyo)のリモコン信号を取得
+        $ ./raspi_ir_in 17 2        SIRC方式(SONY)のリモコン信号を取得
+        $ ./raspi_ir_in 17 255      方式を自動選択してからリモコン信号を取得
+        $ ./raspi_ir_in 17 0 10     10秒間、待ち続けて、信号が無ければタイムアウト
 
     応答値(stdio)
         取得したリモコン信号
@@ -31,8 +31,8 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
 #include <stdlib.h>
 #include <unistd.h>         // usleep用
 
-#define IR_MODE   	255     // 外線信号のモード（0はAEHA方式、255は自動）
-    						// enum IR_TYPE{AEHA=0,NEC=1,SIRC=2};
+#define IR_MODE     255     // 外線信号のモード（0はAEHA方式、255は自動）
+                            // enum IR_TYPE{AEHA=0,NEC=1,SIRC=2};
 #define TIMEOUT     -1      // 受信のタイムアウト設定（秒）、-1で∞
 #define DATA_SIZE   32      // 受信データサイズ（バイト）
 
@@ -40,22 +40,24 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
 #define RasPi_PORTS 26      // Raspberry Pi GPIO ピン数 26 固定
 #define GPIO_RETRY  3       // GPIO 切換え時のリトライ回数
 #define S_NUM       8       // 文字列の最大長
-//	#define DEBUG           // デバッグモード
+//  #define DEBUG           // デバッグモード
 
 typedef unsigned char byte; 
 FILE *fgpio;
-char buf[S_NUM];			// ir_read.c内のdigitalReadで使用するために確保
+char buf[S_NUM];            // ir_read.c内のdigitalReadで使用するために確保
 char gpio[]="/sys/class/gpio/gpio00/value";
 char dir[] ="/sys/class/gpio/gpio00/direction";
+char wipi[]="/usr/local/bin/gpio -g mode 00 up/down/tri";   // wipi[28-29]
+
 #include "../libs/ir/ir_read.c"
 
 int main(int argc,char **argv){
     char s[S_NUM];
-    byte data[DATA_SIZE];	// 赤外線リモコン信号用
-    int i;              	// ループ用
-    int port;           	// GPIOポート
-    int value;          	// 応答値
-    int mode=IR_MODE;  		// 赤外線信号のモード（0はAEHA方式）
+    byte data[DATA_SIZE];   // 赤外線リモコン信号用
+    int i;                  // ループ用
+    int port;               // GPIOポート
+    int value;              // 応答値
+    int mode=IR_MODE;       // 赤外線信号のモード（0はAEHA方式）
     int time=TIMEOUT;       // タイムアウト管理用
 
     #if RasPi_1_REV == 1
@@ -90,6 +92,7 @@ int main(int argc,char **argv){
         printf("9\n");
         return -1;
     }
+        
     /* 第2引数valueの内容確認と設定 */
     if( argc >= 3 ){
         value = atoi(argv[2]);
@@ -129,8 +132,8 @@ int main(int argc,char **argv){
     
     /* 第3引数timeの内容確認と設定 */
     if( argc >= 4 ){
-		time = atoi(argv[3]);
-	}
+        time = atoi(argv[3]);
+    }
     #ifdef DEBUG
         printf("time = %d\n",time);
     #endif
@@ -138,8 +141,10 @@ int main(int argc,char **argv){
     /* ポート番号の設定 */
     gpio[20]='\0';
     dir[20]='\0';
+    wipi[28]='\0';
     sprintf(gpio,"%s%d/value",gpio,port);
     sprintf(dir,"%s%d/direction",dir,port);
+    sprintf(wipi,"%s %d tri",wipi,port);
     /* ポート開始処理 */
     fgpio = fopen(gpio, "r");
     if( fgpio==NULL ){
@@ -177,37 +182,41 @@ int main(int argc,char **argv){
             }
         }
     }
+    
+    /* トリステート設定(2017/2/19追加) */
+    system(wipi);
+    
     /* ポート入力処理 */
     fgets(s, S_NUM, fgpio);
     value = atoi(s);
     fclose(fgpio);
     /* 赤外線リモコン信号の待ち受け処理 */
     do{
-	    while( value ){
-	        value = digitalRead();
-	        if( time >= 0 && micros() > time * 1000000){
-				#ifdef DEBUG
-			        printf("Timeout (no data)\n");
-			    #endif
-				printf("00 \n");
-	   			return 0;
-			}
-	    }
-		value = ir_read(data,DATA_SIZE,mode);
-		if( value > 0 ){
-			if(value%8) value += 8;
-			value /= 8;
-		}
-		#ifdef DEBUG
-		else printf("Detected noise (%d)\n",value);
-		#endif
-	}while( value <= 0 );
-	#ifdef DEBUG
-	printf("len     = %d\n",value);
-	#endif
-	for(i=0;i<value;i++){
-		printf("%02X ",data[i]);
-	}
+        while( value ){
+            value = digitalRead();
+            if( time >= 0 && micros() > time * 1000000){
+                #ifdef DEBUG
+                    printf("Timeout (no data)\n");
+                #endif
+                printf("00 \n");
+                return 0;
+            }
+        }
+        value = ir_read(data,DATA_SIZE,mode);
+        if( value > 0 ){
+            if(value%8) value += 8;
+            value /= 8;
+        }
+        #ifdef DEBUG
+        else printf("Detected noise (%d)\n",value);
+        #endif
+    }while( value <= 0 );
+    #ifdef DEBUG
+    printf("len     = %d\n",value);
+    #endif
+    for(i=0;i<value;i++){
+        printf("%02X ",data[i]);
+    }
     printf("\n");
     return 0;
 }
