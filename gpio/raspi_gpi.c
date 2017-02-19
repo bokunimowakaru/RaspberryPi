@@ -5,20 +5,22 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 
     使い方：
 
-        $ raspi_gpi ポート番号 設定値
+        $ ./raspi_gpi ポート番号 設定値
 
     使用例：
 
-        $ raspi_gpi 4           GIPOポート4の入力値を取得
-        $ raspi_gpi 18          GIPOポート18の入力値を取得
-        $ raspi_gpi 18 PUP      GIPOポート18をプルアップに設定する(PUPまたは2)
-        $ raspi_gpi 18 NC       GIPOポート18を非使用に戻す(NCまたは-1)
-        $ raspi_gpi 18 0        GIPOポート18が0になるまで待つ
-        $ raspi_gpi 18 1        GIPOポート18が1になるまで待つ
-        $ raspi_gpi 18 PUP 0    GIPOポート18をプルアップし、0になるまで待つ
-        $ raspi_gpi 18 PUP 1    GIPOポート18をプルアップし、1になるまで待つ
+        $ ./raspi_gpi 4           GIPOポート4の入力値を取得
+        $ ./raspi_gpi 18          GIPOポート18の入力値を取得
+        $ ./raspi_gpi 18 PUP      GIPOポート18をプルアップに設定する(PUP／2)
+        $ ./raspi_gpi 18 PDOWN    GIPOポート18をプルダウンに設定する(PDOWN／3)
+        $ ./raspi_gpi 18 NC       GIPOポート18を非使用に戻す(NCまたは-1)
+        $ ./raspi_gpi 18 0        GIPOポート18が0になるまで待つ
+        $ ./raspi_gpi 18 1        GIPOポート18が1になるまで待つ
+        $ ./raspi_gpi 18 PUP 0    GIPOポート18をプルアップし、0になるまで待つ
+        $ ./raspi_gpi 18 PUP 1    GIPOポート18をプルアップし、1になるまで待つ
         
-        ※プルアップは一時的に出力を設定することにより実現する模擬方式です
+        ※WiringPi未インストール時のプルアップは一時的に出力を設定することにより
+        　実現する模擬方式となります。
 
     応答値(stdio)
         0       Lレベルを取得
@@ -47,9 +49,10 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
 
 int main(int argc,char **argv){
     FILE *fgpio;
-    //           012345678901234567890      gpio[20]と[21]にポート番号が入る
-    char gpio[]="/sys/class/gpio/gpio00/value";
-    char dir[] ="/sys/class/gpio/gpio00/direction";
+    //           0123456789012345678901234567890                // ポート番号
+    char gpio[]="/sys/class/gpio/gpio00/value";                 // gpio[20-21]
+    char dir[] ="/sys/class/gpio/gpio00/direction";             // dir[20-21]
+    char wipi[]="/usr/local/bin/gpio -g mode 00 up/down/tri";   // wipi[28-29]
     char s[S_NUM];
     int i;                  // ループ用
     int port;               // GPIOポート
@@ -94,14 +97,14 @@ int main(int argc,char **argv){
     }
     /* ポート番号の設定 */
     gpio[20]='\0';
-    dir[20]='\0';
+    dir[20] ='\0';
     sprintf(gpio,"%s%d/value",gpio,port);
     sprintf(dir,"%s%d/direction",dir,port);
     
     /* ポート開始処理 */
     fgpio = fopen(gpio, "r");
     if( fgpio==NULL ){
-        /* ポートの有効化 */
+        /* ポートの有効化(エラー処理あり) */
         fgpio = fopen("/sys/class/gpio/export","w");
         if(fgpio==NULL ){
             fprintf(stderr,"IO Error\n");
@@ -113,7 +116,7 @@ int main(int argc,char **argv){
         #ifdef DEBUG
             printf("Enabled Port\n");
         #endif
-        /* ポートの入力設定 */
+        /* ポートの入力設定(リトライ処理・エラー処理あり) */
         for(i=0;i<GPIO_RETRY;i++){
             fgpio = fopen(dir, "w");
             if( fgpio ) break;
@@ -130,12 +133,20 @@ int main(int argc,char **argv){
             printf("Set Direction to IN (tried %d)\n",i);
         #endif
         /* 入力ポートの確認 */
-        fgpio = fopen(gpio, "r");
+        fgpio = fopen(dir, "r");
         if(fgpio==NULL){
             fprintf(stderr,"IO Error %s\n",gpio);
             printf("9\n");
             return -1;
         }
+        fgets(s, S_NUM, fgpio);
+        if(strcmp(s,"in\n")){
+            fprintf(stderr,"IO Error (IO Mode = %s)\n",s);
+            printf("9\n");
+            fclose(fgpio);
+            return -1;
+        }
+        fclose(fgpio);
     }
     fclose(fgpio);
     
@@ -169,19 +180,23 @@ int main(int argc,char **argv){
             case 1:
                 trig=value;
                 break;
-            case 2:
-                fgpio = fopen(dir, "w");
-                if(fgpio){
-                    fprintf(fgpio,"high\n");
-                    fclose(fgpio);
-                    pseudoPUpDown=1;
-                    #ifdef DEBUG
-                        printf("Port Pulled Up\n");
-                    #endif
-                }else{
-                    fprintf(stderr,"IO Error\n");
-                    printf("9\n");
-                    return -1;
+            case 2: // PULL UP
+                wipi[28]='\0';
+                sprintf(wipi,"%s %d up",wipi,port);
+                if(system(wipi)){
+                    fgpio = fopen(dir, "w");
+                    if(fgpio){
+                        fprintf(fgpio,"high\n");
+                        fclose(fgpio);
+                        pseudoPUpDown=1;
+                        #ifdef DEBUG
+                            printf("Port Pulled Up\n");
+                        #endif
+                    }else{
+                        fprintf(stderr,"IO Error\n");
+                        printf("9\n");
+                        return -1;
+                    }
                 }
                 if( argc == 4 ){
                     if(!strcmp(argv[3],"LOW")) trig=0;
@@ -190,19 +205,23 @@ int main(int argc,char **argv){
                     if( trig%2 != trig) trig=-1;
                 }
                 break;
-            case 3:
-                fgpio = fopen(dir, "w");
-                if(fgpio){
-                    fprintf(fgpio,"low\n");
-                    fclose(fgpio);
-                    pseudoPUpDown=0;
-                    #ifdef DEBUG
-                        printf("Port Pulled Down\n");
-                    #endif
-                }else{
-                    fprintf(stderr,"IO Error\n");
-                    printf("9\n");
-                    return -1;
+            case 3: // PULL DOWN
+                wipi[28]='\0';
+                sprintf(wipi,"%s %d down",wipi,port);
+                if(system(wipi)){
+                    fgpio = fopen(dir, "w");
+                    if(fgpio){
+                        fprintf(fgpio,"low\n");
+                        fclose(fgpio);
+                        pseudoPUpDown=0;
+                        #ifdef DEBUG
+                            printf("Port Pulled Down\n");
+                        #endif
+                    }else{
+                        fprintf(stderr,"IO Error\n");
+                        printf("9\n");
+                        return -1;
+                    }
                 }
                 if( argc == 4 ){
                     if(!strcmp(argv[3],"LOW")) trig=0;
@@ -217,6 +236,9 @@ int main(int argc,char **argv){
                 return -1;
         }
     }
+    #ifdef DEBUG
+        if( pseudoPUpDown >= 0) printf("Pseudo Pull Up / Down mode = %d",pseudoPUpDown);
+    #endif
     
     /* ポート入力処理 */
     fgpio = fopen(gpio, "r");
@@ -228,15 +250,6 @@ int main(int argc,char **argv){
     fgets(s, S_NUM, fgpio);
     value = atoi(s);
     fclose(fgpio);
-    
-    /* 疑似プルアップ終了処理 */
-    if(pseudoPUpDown>=0){
-        fgpio = fopen(dir, "w");
-        if(fgpio){
-            fprintf(fgpio,"in\n");
-            fclose(fgpio);
-        }
-    }
     
     /* 期待値trigの待ち受け処理 */
     if( trig >= 0 ){
@@ -268,6 +281,35 @@ int main(int argc,char **argv){
             }
         }
         value = i;
+    }
+    
+    /* 疑似プルアップ終了処理(リトライ処理・エラー処理あり) */
+    for(i=0;i<GPIO_RETRY;i++){
+        fgpio = fopen(dir, "r");
+        if( fgpio ) break;
+        usleep(50000);
+    }
+    if(i==GPIO_RETRY){
+        fprintf(stderr,"IO Error %s\n",dir);
+        printf("9\n");
+        return -1;
+    }
+    fgets(s, S_NUM, fgpio);
+    if(strcmp(s,"in\n")){
+        for(i=0;i<GPIO_RETRY;i++){
+            fgpio = fopen(dir, "w");
+            if( fgpio ) break;
+            usleep(50000);
+        }
+        if(i==GPIO_RETRY){
+            fprintf(stderr,"IO Error %s\n",dir);
+            printf("9\n");
+            return -1;
+        }
+        if(fgpio){
+            fprintf(fgpio,"in\n");
+            fclose(fgpio);
+        }
     }
     
     /* ポート状態の出力 */
@@ -321,7 +363,7 @@ int main(int argc,char **argv){
     参考文献
     https://tool-lab.com/make/raspberrypi-startup-24/
     
-参考資料(3) Command-Line access to Raspberry Pi's GPIO	// wiringPi September 2015
+参考資料(3) Command-Line access to Raspberry Pi's GPIO  // wiringPi September 2015
 
     gpio オプション
 
@@ -332,13 +374,13 @@ int main(int argc,char **argv){
         set the internal pull-up, pull-down or tristate (off) controls.
     
     EXAMPLES
-       gpio mode 4 output # Set pin 4 to output
-       gpio -g mode 23 output # Set GPIO pin 23 to output (same as WiringPi pin 4)
-       gpio mode 1 pwm # Set pin 1 to PWM mode
-       gpio pwm 1 512 # Set pin 1 to PWM value 512 - half brightness
-       gpio export 17 out # Set GPIO Pin 17 to output
-       gpio export 0 in # Set GPIO Pin 0 (SDA0) to input.
-       gpio -g read 0 # Read GPIO Pin 0 (SDA0)
+       gpio mode 4 output               # Set pin 4 to output
+       gpio -g mode 23 output           # Set GPIO pin 23 to output (same as WiringPi pin 4)
+       gpio mode 1 pwm                  # Set pin 1 to PWM mode
+       gpio pwm 1 512                   # Set pin 1 to PWM value 512 - half brightness
+       gpio export 17 out               # Set GPIO Pin 17 to output
+       gpio export 0 in                 # Set GPIO Pin 0 (SDA0) to input.
+       gpio -g read 0                   # Read GPIO Pin 0 (SDA0)
 
     権利情報
         WiringPi's home page
