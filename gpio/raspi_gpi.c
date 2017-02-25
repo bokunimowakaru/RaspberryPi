@@ -52,7 +52,8 @@ int main(int argc,char **argv){
     //           0123456789012345678901234567890                // ポート番号
     char gpio[]="/sys/class/gpio/gpio00/value";                 // gpio[20-21]
     char dir[] ="/sys/class/gpio/gpio00/direction";             // dir[20-21]
-    char wipi[]="/usr/local/bin/gpio -g mode 00 up/down/tri";   // wipi[28-29]
+    char wipi[]="/usr/local/bin/gpio -g mode 00 up/down/tri 2>/dev/null";
+                                                                // wipi[28-29]
     char s[S_NUM];
     int i;                  // ループ用
     int port;               // GPIOポート
@@ -236,9 +237,11 @@ int main(int argc,char **argv){
                 return -1;
         }
     }
-    #ifdef DEBUG
-        if( pseudoPUpDown >= 0) printf("Pseudo Pull Up / Down mode = %d",pseudoPUpDown);
-    #endif
+    if( pseudoPUpDown >= 0){
+        fprintf(stderr,"Pseudo Pull Up / Down mode (%d)\n",pseudoPUpDown);
+        fprintf(stderr,"WiringPiをインストールしてください。\n");
+        fprintf(stderr,"git clone git://git.drogon.net/wiringPi\n");
+    }
     
     /* ポート入力処理 */
     fgpio = fopen(gpio, "r");

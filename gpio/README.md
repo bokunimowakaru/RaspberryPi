@@ -51,8 +51,8 @@
 
     http://blogs.yahoo.co.jp/bokunimowakaru/55117684.html
 
-# Raspberry Pi用 I2C 制御プログラム  raspi_*
-# 各種I2C温度センサ・湿度センサ・気圧センサに対応
+# Raspberry Pi用 (I2C等) 制御プログラム  raspi_*
+# 各種I2C等の温度センサ・湿度センサ・気圧センサに対応
 
     使い方(BME280)：
 
@@ -73,6 +73,8 @@
     〇  －  〇  －  STMicro LPS25H  raspi_lps25h.c 
     〇  －  －  －  STMicro STTS751 raspi_stts751.c 
     －  －  －  〇  TI ADS1115      raspi_ads1115.c 
+    〇  －  －  －  MAXIM MAX6675   raspi_max6675.c 
+    －  〇  －  －  RasPi 内蔵      raspi_temp.c 
     加速度 Analog Devices ADXL345   raspi_adxl345.c 
 
 # Raspberry Pi + Apple Pi 用 デモ プログラム
