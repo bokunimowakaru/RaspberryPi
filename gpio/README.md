@@ -67,6 +67,7 @@
     温  湿  気  電  メーカ・型番    プログラム
     度  度  圧  圧
     〇  〇  －  －  TI HDC1000      raspi_hdc1000.c 
+    〇  〇  －  －  Silicon Si7021  raspi_si7021.c
     〇  〇  〇  －  BOSCH BME280    raspi_bme280.c 
     〇  －  〇  －  BOSCH BMP280    raspi_bme280.c 
     〇  〇  －  －  Aosong AM2320   raspi_am2320.c 
@@ -91,5 +92,5 @@
 本資料を複製・改変・再配布する場合は著作権表示が必要です。
 
                   Copyright (C) 2015-2017 国野亘 (Wataru KUNINO)
-                       http://www.geocities.jp/bokunimowakaru/
+               http://www.geocities.jp/bokunimowakaru/diy/raspi/
 ----------------------------------------------------------------

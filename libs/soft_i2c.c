@@ -288,11 +288,24 @@ byte i2c_read(byte adr, byte *rx, byte len){
 			rx[ret] |= (digitalRead(PORT_SDA))<<(7-i);		//data[22] b4=Port 12(SDA)
 			i2c_SCL(0);						// (SCL)	L Out
 		}
-		// ACKを応答する
-		i2c_SDA(0);							// (SDA)	L Out
-		i2c_SCL(1);							// (SCL)	H Imp
-		_delayMicroseconds(I2C_RAMDA);
+		if(ret<len-1){
+			// ACKを応答する
+			i2c_SDA(0);							// (SDA)	L Out
+			i2c_SCL(1);							// (SCL)	H Imp
+			_delayMicroseconds(I2C_RAMDA);
+		}else{
+			// NACKを応答する
+			i2c_SDA(1);							// (SDA)	H Imp
+			i2c_SCL(1);							// (SCL)	H Imp
+			_delayMicroseconds(I2C_RAMDA);
+		}
 	}
+	/* STOP */
+	i2c_SCL(0);								// (SCL)	L Out
+	i2c_SDA(0);								// (SDA)	L Out
+	_delayMicroseconds(I2C_RAMDA);
+	i2c_SCL(1);								// (SCL)	H Imp
+	_delayMicroseconds(I2C_RAMDA);
 	i2c_SDA(1);								// (SDA)	H Imp
 	return(ret);
 }
@@ -327,6 +340,7 @@ byte i2c_write(byte adr, byte *tx, byte len){
 	_delayMicroseconds(I2C_RAMDA);
 	if(len==0)_delayMicroseconds(800);		// AM2320用
 	i2c_SCL(1);								// (SCL)	H Imp
+	_delayMicroseconds(I2C_RAMDA);
 	i2c_SDA(1);								// (SDA)	H Imp
 	return(ret);
 }
