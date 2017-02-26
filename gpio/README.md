@@ -77,6 +77,7 @@
     〇  －  －  －  MAXIM MAX6675   raspi_max6675.c 
     －  〇  －  －  RasPi 内蔵      raspi_temp.c 
     加速度 Analog Devices ADXL345   raspi_adxl345.c 
+    二酸化炭素      AMS CCS811      raspi_ccs811.c
 
 # Raspberry Pi + Apple Pi 用 デモ プログラム
 
