@@ -24,7 +24,7 @@ all: $(PROGS)
 
 clean:
 	rm -f $(PROGS) ../libs/soft_i2c
-	rm -f raspi_lcd raspi_bme280 raspi_hdc1000
+	rm -f raspi_lcd raspi_bme280 raspi_hdc1000 raspi_si7021
 	rm -f raspi_stts751 raspi_am2320 raspi_lps25h 
 	rm -f raspi_ads1115 raspi_adxl345
 	rm -f raspi_ir_out
