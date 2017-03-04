@@ -13,6 +13,7 @@ UART接続のWinsen MH-Z19センサから測定値を取得する
 #include <stdio.h>                                  // 標準入出力用
 #include <unistd.h>                                 // usleep用
 #include "../libs/uart.h"
+//  #define DEBUG
 
 void delay(int i){
     while(i){
@@ -21,36 +22,61 @@ void delay(int i){
     }
 }
 
-int main(int argc, char *argv[]){
+int getCo2(char *port){
     uint8_t com[9]={0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79};
-    uint8_t in[8];
-    int i;
+    uint8_t in[8], checksum=0x00;
+    int i,co2;
     
-    if(argc==2) i=open_serial_port(9600,argv[1]);
-    else i=open_serial_port(9600,"");
+    i=open_serial_port(9600,port);
     if(i<0){
-        fprintf(stderr,"Usage : %s (port)",argv[0]);
+        fprintf(stderr,"Usage : raspi_mhz19 (port; eg:/dev/ttyUSB0)\n");
         return -1;
     }
     delay(100);
     putb_serial_port(com,9);
     i=0;
     while(getch_serial_port() != 0xFF){
-        delay(10); i++; 
-        /*
-        if(i>100){
-            printf("-1\n");
+        delay(1);
+        i++; 
+        if(i>1000){
+			fprintf(stderr,"Timed Out (%d)\n",i);
             return -1;
         }
-        */
     }
     for(i=0;i<8;i++){
         in[i]=getch_serial_port();
+        checksum += in[i];
         delay(1);
     }
-    for(i=0;i<8;i++) printf("0x%02x ",in[i]);
-    printf("\n");
     close_serial_port();
+    #ifdef DEBUG
+    	for(i=0;i<8;i++) printf("0x%02x ",in[i]);
+    	printf("(0x%02x)\n",checksum);
+    #endif
+    if(checksum){
+		fprintf(stderr,"Check Sum Error (0x%02x)\n",checksum);
+    	close_serial_port();
+        return -1;
+	}
+    if(in[0]!=0x86){
+		fprintf(stderr,"Command Error (0x%02x)\n",in[0]);
+        return -1;
+	}
+	co2=(((int)in[1])<<8) + (int)in[2];
+    return co2;
+}
+
+int main(int argc, char *argv[]){
+	int co2;
+	
+    if(argc==2) co2=getCo2(argv[1]);
+    else co2=getCo2("");
+    if(co2<0){
+        fprintf(stderr,"Usage : %s (port; eg:/dev/ttyUSB0)\n",argv[0]);
+        printf("-1\n");
+        return -1;
+    }
+    printf("%d\n",co2);
     return 0;
 }
 
