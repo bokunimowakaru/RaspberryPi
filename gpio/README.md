@@ -64,21 +64,21 @@
         $ raspi_bme280 76       SDOピンをGNDに接続した場合
         $ raspi_bme280 77       SDOピンをVDDIOに接続した場合
 
-    温  湿  気  電  メーカ・型番    プログラム
-    度  度  圧  圧
-    〇  〇  －  －  TI HDC1000      raspi_hdc1000.c 
-    〇  〇  －  －  Silicon Si7021  raspi_si7021.c
-    〇  〇  〇  －  BOSCH BME280    raspi_bme280.c 
-    〇  －  〇  －  BOSCH BMP280    raspi_bme280.c 
-    〇  〇  －  －  Aosong AM2320   raspi_am2320.c 
-    〇  －  〇  －  STMicro LPS25H  raspi_lps25h.c 
-    〇  －  －  －  STMicro STTS751 raspi_stts751.c 
-    －  －  －  〇  TI ADS1115      raspi_ads1115.c 
-    〇  －  －  －  MAXIM MAX6675   raspi_max6675.c 
-    －  〇  －  －  RasPi 内蔵      raspi_temp.c 
-    加速度 Analog Devices ADXL345   raspi_adxl345.c 
-    二酸化炭素      AMS CCS811      raspi_ccs811.c 
-    二酸化炭素      MH-Z19          raspi_mhz19.c 
+	    温  湿  気  電  メーカ・型番    プログラム
+	    度  度  圧  圧
+	    〇  〇  －  －  TI HDC1000      raspi_hdc1000.c 
+	    〇  〇  －  －  Silicon Si7021  raspi_si7021.c
+	    〇  〇  〇  －  BOSCH BME280    raspi_bme280.c 
+	    〇  －  〇  －  BOSCH BMP280    raspi_bme280.c 
+	    〇  〇  －  －  Aosong AM2320   raspi_am2320.c 
+	    〇  －  〇  －  STMicro LPS25H  raspi_lps25h.c 
+	    〇  －  －  －  STMicro STTS751 raspi_stts751.c 
+	    －  －  －  〇  TI ADS1115      raspi_ads1115.c 
+	    〇  －  －  －  MAXIM MAX6675   raspi_max6675.c 
+	    －  〇  －  －  RasPi 内蔵      raspi_temp.c 
+	    加速度 Analog Devices ADXL345   raspi_adxl345.c 
+	    二酸化炭素      AMS CCS811      raspi_ccs811.c 
+	    二酸化炭素      MH-Z19          raspi_mhz19.c 
 
 
 # Raspberry Pi + Apple Pi 用 デモ プログラム
