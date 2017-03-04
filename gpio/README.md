@@ -1,9 +1,9 @@
-# Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
-# Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
-# Raspberry Pi用 I2C 制御プログラム  raspi_*
-# Raspberry Pi + Apple Pi 用 デモ プログラム
-
-# Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
+# Raspberry Pi用 GPIO プログラム 集
+- raspi_gpo
+- Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
+- Raspberry Pi用 I2C 制御プログラム  raspi_*
+- Raspberry Pi + Apple Pi 用 デモ プログラム
+- Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
 
 指定したGPIOのポートを出力に設定し、指定した値に変更するためのプログラムです。
 
@@ -77,7 +77,8 @@
     〇  －  －  －  MAXIM MAX6675   raspi_max6675.c 
     －  〇  －  －  RasPi 内蔵      raspi_temp.c 
     加速度 Analog Devices ADXL345   raspi_adxl345.c 
-    二酸化炭素      AMS CCS811      raspi_ccs811.c
+    二酸化炭素      AMS CCS811      raspi_ccs811.c
+    二酸化炭素      MH-Z19          raspi_mhz19.c
 
 # Raspberry Pi + Apple Pi 用 デモ プログラム
 
