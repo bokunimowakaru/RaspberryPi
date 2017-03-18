@@ -3,7 +3,7 @@
 #
 # http://blogs.yahoo.co.jp/bokunimowakaru/55588469.html
 # 
-# Copyright (c) 2016 Wataru KUNINO
+# Copyright (c) 2016-2017 Wataru KUNINO
 #
 ################################################################################
 #
@@ -17,10 +17,10 @@
 TALKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"       # トークン
 
 DEVICE="sakra_1"                                    # 識別名
-INTERVAL = 3                                        # 確認間隔
+INTERVAL=3                                          # 確認間隔
 
 while true; do
-    DATA=`timeout $INTERVAL curl -s -N \
+    DATA=`curl --max-time $INTERVAL -s -N \
     -H 'Sec-WebSocket-Version: 13' \
     -H "Sec-WebSocket-Key: $(head -c 16 /dev/urandom | base64)" \
     -H "Connection: Upgrade" \
