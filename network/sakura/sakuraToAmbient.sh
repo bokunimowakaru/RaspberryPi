@@ -3,7 +3,7 @@
 #
 # さくらのIoT Platform β から IoTクラウドサービス Ambientへ転送する
 #
-# http://blogs.yahoo.co.jp/bokunimowakaru/55588469.html
+# http://blogs.yahoo.co.jp/bokunimowakaru/55708303.html
 # 
 # Copyright (c) 2016-2017 Wataru KUNINO
 #
