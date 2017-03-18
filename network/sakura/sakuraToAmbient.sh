@@ -49,7 +49,6 @@ while true; do
         |tr "-" "/"\
         |tr "T" " "`
         DATE=`date --date "${DATE} UTC" "+%Y/%m/%d %H:%M:%S"` # UTCをJST(等)へ変換
-        echo -n ${DATE}", "${DEVICE}", "
         VALUE=`echo $DATA\
         |tr '{' '\n'\
         |grep "\"channel\"\:0"\
@@ -58,10 +57,12 @@ while true; do
         |grep \"value\"\
         |head -1\
         |cut -c9-`
-        echo $VALUE
-        JSON="{\"writeKey\":\"${AmbientWriteKey}\",\"d1\":\"${VALUE}\"}"
-    #   echo $JSON
-        curl -s ambidata.io/api/v2/channels/${AmbientChannelId}/data\
-             -X POST -H "Content-Type: application/json" -d ${JSON} # データ送信
+        if [ -n "$VALUE" ]; then
+            echo ${DATE}", "${DEVICE}", "${VALUE}
+            JSON="{\"writeKey\":\"${AmbientWriteKey}\",\"d1\":\"${VALUE}\"}"
+        #   echo $JSON
+            curl -s ambidata.io/api/v2/channels/${AmbientChannelId}/data\
+                 -X POST -H "Content-Type: application/json" -d ${JSON} # データ送信
+        fi
     fi
 done
