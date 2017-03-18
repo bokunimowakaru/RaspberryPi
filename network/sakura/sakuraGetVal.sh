@@ -20,7 +20,7 @@ DEVICE="sakra_1"                                    # 識別名
 INTERVAL=3                                          # 確認間隔
 
 while true; do
-    DATA=`timeout $INTERVAL curl -s -N \
+    DATA=`curl --max-time 3 -s -N \
     -H 'Sec-WebSocket-Version: 13' \
     -H "Sec-WebSocket-Key: $(head -c 16 /dev/urandom | base64)" \
     -H "Connection: Upgrade" \
