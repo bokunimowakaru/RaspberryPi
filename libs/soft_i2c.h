@@ -29,6 +29,10 @@ byte i2c_write(byte adr, byte *tx, byte len);
 void i2c_lcd_out(byte y,byte *lcd);
 void utf_del_uni(char *s);
 void i2c_lcd_init(void);
+void i2c_lcd_init_xy(byte x, byte y);
 void i2c_lcd_print(char *s);
-void i2c_lcd_printIp(uint32_t ip);
-
+void i2c_lcd_print2(char *s);
+void i2c_lcd_print_ip(uint32_t ip);
+void i2c_lcd_print_ip2(uint32_t ip);
+void i2c_lcd_print_val(char *s,int in);
+void i2c_lcd_print_time(unsigned long local);

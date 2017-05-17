@@ -18,6 +18,7 @@ Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の�
 #include <sys/time.h>					// gettimeofday用
 #include <string.h>						// strncpy用
 
+#define I2C_lcd 0x3E							// LCD の I2C アドレス 
 #define PORT_SCL	"/sys/class/gpio/gpio3/value"		// I2C SCLポート
 #define PORT_SDA	"/sys/class/gpio/gpio2/value"		// I2C SDAポート
 #define PORT_SDANUM	2									// I2C SDAポートの番号
@@ -36,7 +37,9 @@ FILE *fgpio;
 char buf[S_NUM];
 struct timeval micros_time;				//time_t micros_time;
 int micros_prev,micros_sec;
-int ERROR_CHECK=1;
+int ERROR_CHECK=1;								// 1:ACKを確認／0:ACKを無視する
+static byte _lcd_size_x=8;
+static byte _lcd_size_y=2;
 
 int _micros(){
 	int micros;
@@ -354,12 +357,12 @@ void i2c_lcd_out(byte y,byte *lcd){
 		data[1]=0xC0;
 		y=1;
 	}
-	i2c_write(0x3E,data,2);
-	for(i=0;i<8;i++){
+	i2c_write(I2C_lcd,data,2);
+	for(i=0;i<_lcd_size_x;i++){
 		if(lcd[i]==0x00) break;
 		data[0]=0x40;
 		data[1]=lcd[i];
-		i2c_write(0x3E,data,2);
+		i2c_write(I2C_lcd,data,2);
 	}
 }
 
@@ -382,34 +385,43 @@ void utf_del_uni(char *s){
 	// fprintf(stderr,"len=%d\n",j);
 }
 
+	void i2c_lcd_print(char *s);
+
 void i2c_lcd_init(void){
 	byte data[2];
-	data[0]=0x00; data[1]=0x39; i2c_write(0x3E,data,2);	// IS=1
-	data[0]=0x00; data[1]=0x11; i2c_write(0x3E,data,2);	// OSC
-	data[0]=0x00; data[1]=0x70; i2c_write(0x3E,data,2);	// コントラスト	0
-	data[0]=0x00; data[1]=0x56; i2c_write(0x3E,data,2);	// Power/Cont	6
-	data[0]=0x00; data[1]=0x6C; i2c_write(0x3E,data,2);	// FollowerCtrl	C
+	data[0]=0x00; data[1]=0x39; i2c_write(I2C_lcd,data,2);	// IS=1
+	data[0]=0x00; data[1]=0x11; i2c_write(I2C_lcd,data,2);	// OSC
+	data[0]=0x00; data[1]=0x70; i2c_write(I2C_lcd,data,2);	// コントラスト	0
+	data[0]=0x00; data[1]=0x56; i2c_write(I2C_lcd,data,2);	// Power/Cont	6
+	data[0]=0x00; data[1]=0x6C; i2c_write(I2C_lcd,data,2);	// FollowerCtrl	C
 	delay(200);
-	data[0]=0x00; data[1]=0x38; i2c_write(0x3E,data,2);	// IS=0
-	data[0]=0x00; data[1]=0x0C; i2c_write(0x3E,data,2);	// DisplayON	C
+	data[0]=0x00; data[1]=0x38; i2c_write(I2C_lcd,data,2);	// IS=0
+	data[0]=0x00; data[1]=0x0C; i2c_write(I2C_lcd,data,2);	// DisplayON	C
+	i2c_lcd_print("Hello!  I2C LCD by Wataru Kunino");
+}
+
+void i2c_lcd_init_xy(byte x, byte y){
+	if(x==16||x==8||x==20) _lcd_size_x=x;
+	if(y==1 ||y==2) _lcd_size_y=y;
+	i2c_lcd_init();
 }
 
 void i2c_lcd_print(char *s){
 	byte i,j;
-	char str[49];
-	byte lcd[9];
+	char str[65];
+	byte lcd[21];
 	
-	strncpy(str,s,48);
+	strncpy(str,s,64);
 	utf_del_uni(str);
 	for(j=0;j<2;j++){
-		lcd[8]='\0';
-		for(i=0;i<8;i++){
-			lcd[i]=(byte)str[i+8*j];
+		lcd[_lcd_size_x]='\0';
+		for(i=0;i<_lcd_size_x;i++){
+			lcd[i]=(byte)str[i+_lcd_size_x*j];
 			if(lcd[i]==0x00){
-				for(;i<8;i++) lcd[i]=' ';
+				for(;i<_lcd_size_x;i++) lcd[i]=' ';
 				i2c_lcd_out(j,lcd);
 				if(j==0){
-					for(i=0;i<8;i++) lcd[i]=' ';
+					for(i=0;i<_lcd_size_x;i++) lcd[i]=' ';
 					i2c_lcd_out(1,lcd);
 				}
 				return;
@@ -419,16 +431,168 @@ void i2c_lcd_print(char *s){
 	}
 }
 
-void i2c_lcd_printIp(uint32_t ip){
-	char lcd[17];
+void i2c_lcd_print2(char *s){
+	byte i;
+	char str[65];
+	byte lcd[21];
 	
-	sprintf(lcd,"%i.%i.    ",
+	strncpy(str,s,64);
+	utf_del_uni(str);
+	lcd[_lcd_size_x]='\0';
+	for(i=0;i<_lcd_size_x;i++){
+		lcd[i]=(byte)str[i];
+		if(lcd[i]==0x00){
+			for(;i<_lcd_size_x;i++) lcd[i]=' ';
+			i2c_lcd_out(1,lcd);
+			return;
+		}
+	}
+	i2c_lcd_out(1,lcd);
+}
+
+
+void i2c_lcd_print_ip(uint32_t ip){
+	char lcd[21];
+	
+	if(_lcd_size_x<=8){
+		sprintf(lcd,"%i.%i.    ",
+			ip & 255,
+			ip>>8 & 255
+		);
+		sprintf(&lcd[8],"%i.%i",
+			ip>>16 & 255,
+			ip>>24
+		);
+	}else{
+		sprintf(lcd,"%i.%i.%i.%i",
+			ip & 255,
+			ip>>8 & 255,
+			ip>>16 & 255,
+			ip>>24
+		);
+	}
+	i2c_lcd_print(lcd);
+}
+
+void i2c_lcd_print_ip2(uint32_t ip){
+	char lcd[21];
+	
+	sprintf(lcd,"%i.%i.%i.%i",
 		ip & 255,
-		ip>>8 & 255
-	);
-	sprintf(&lcd[8],"%i.%i",
+		ip>>8 & 255,
 		ip>>16 & 255,
 		ip>>24
 	);
-	i2c_lcd_print(lcd);
+	if(_lcd_size_x>=16) i2c_lcd_print2(lcd);
+	else i2c_lcd_print(lcd);
+}
+
+void i2c_lcd_print_val(char *s,int in){
+	char lcd[21];
+	sprintf(lcd,"%d",in);
+	i2c_lcd_print(s);
+	i2c_lcd_print2(lcd);
+}
+
+/*******************************************************************************
+
+time2txt 用に使用したライブラリの権利情報：
+
+time.c - low level time and date functions
+Copyright (c) Michael Margolis 2009
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+6  Jan 2010 - initial release 
+12 Feb 2010 - fixed leap year calculation error
+1  Nov 2010 - fixed setTime bug (thanks to Korman for this)
+*******************************************************************************/
+/*============================================================================*/	
+/* functions to convert to and from system time */
+/* These are for interfacing with time serivces and are not normally needed in a sketch */
+// leap year calulator expects year argument as years offset from 1970
+//	static  const uint8_t monthDays[]={31,28,31,30,31,30,31,31,30,31,30,31};
+// API starts months from 1, this array starts from 0
+//	void breakTime(time_t time, tmElements_t &tm){
+	// break the given time_t into time components
+	// this is a more compact version of the C library localtime function
+	// note that year is offset from 1970 !!!
+#define LEAP_YEAR(Y)     ( ((1970+Y)>0) && !((1970+Y)%4) && ( ((1970+Y)%100) || !((1970+Y)%400) ) )
+void time2txt(char *date,unsigned long local){
+	int Year,year;
+	int Month,month, monthLength;
+	int Day;
+	int Second,Minute,Hour;
+//	int Wday;  // Sunday is day 1 
+	unsigned long days;
+	static  const uint8_t monthDays[]={31,28,31,30,31,30,31,31,30,31,30,31};
+	Second = local % 60;
+	local /= 60; // now it is minutes
+	Minute = local % 60;
+	local /= 60; // now it is hours
+	Hour = local % 24;
+	local /= 24; // now it is days
+//	Wday = ((local + 4) % 7) + 1;  // Sunday is day 1 
+	year = 0;  
+	days = 0;
+	while((unsigned)(days += (LEAP_YEAR(year) ? 366 : 365)) <= local) {
+		year++;
+	}
+//	Year = year; // year is offset from 1970 
+	days -= LEAP_YEAR(year) ? 366 : 365;
+	local  -= days; // now it is days in this year, starting at 0
+	days=0;
+	month=0;
+	monthLength=0;
+	for (month=0; month<12; month++) {
+		if (month==1) { // february
+			if (LEAP_YEAR(year)) {
+				monthLength=29;
+			} else {
+				monthLength=28;
+			}
+		} else {
+			monthLength = monthDays[month];
+		}
+
+		if (local >= monthLength) {
+			local -= monthLength;
+		} else {
+		    break;
+		}
+	}
+	Year = year + 1970;
+	Month = month + 1;  // jan is month 1  
+	Day = local + 1;     // day of month
+	sprintf(date,"%4d/%02d/%02d,%02d:%02d:%02d",Year,Month,Day,Hour,Minute,Second);
+}
+
+void i2c_lcd_print_time(unsigned long local){
+	char date[20];	//	0123456789012345678
+					//	2014/01/01,12:34:56
+	
+	time2txt(date,local);
+	if(_lcd_size_x<=8){
+		date[10]='\0';
+		i2c_lcd_print(&date[2]);
+		i2c_lcd_print2(&date[11]);
+	}else if(_lcd_size_x>=19){
+		i2c_lcd_print(date);
+	}else if(_lcd_size_x>=10){
+		date[10]='\0';
+		i2c_lcd_print(date);
+		i2c_lcd_print2(&date[11]);
+	}
 }
