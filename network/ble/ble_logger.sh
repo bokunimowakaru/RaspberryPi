@@ -1,5 +1,6 @@
 #!/bin/bash
 # BLEビーコンのブロードキャストを受信する
+# hcidumpのインストール（sudo apt-get install bluez-hcidump）が必要です
 #
 # ./ble_logger.sh           簡易表示モード
 # ./ble_logger.sh dump      受信データ表示モード
