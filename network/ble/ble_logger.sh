@@ -14,7 +14,7 @@
 
 if [ $# -ne 0 -a "${1}" != "ana" -a "${1}" != "dump" ]; then
     echo "Usage: "${0}" [options]"
-    head -10 $0|tail -9
+    head -14 $0|tail -13
     exit 0
 fi
 
