@@ -1,6 +1,5 @@
 #!/bin/bash
 # BLEビーコンのブロードキャストを受信する
-# hcidumpのインストール（sudo apt-get install bluez-hcidump）が必要です
 #
 # ./ble_logger.sh           簡易表示モード
 # ./ble_logger.sh dump      受信データ表示モード
@@ -8,6 +7,10 @@
 # ./ble_logger.sh help      ヘルプ表示
 #
 # Copyright (c) 2017 Wataru KUNINO
+
+# 動作しない場合
+# 一度、Bluetoothの電源を切ってみてください（sudo hciconfig hci0 down）
+# hcidumpのインストール（sudo apt-get install bluez-hcidump）が必要です
 
 if [ $# -ne 0 -a "${1}" != "ana" -a "${1}" != "dump" ]; then
     echo "Usage: "${0}" [options]"
