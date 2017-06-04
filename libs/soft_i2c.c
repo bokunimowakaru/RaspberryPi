@@ -397,7 +397,7 @@ void i2c_lcd_init(void){
 	delay(200);
 	data[0]=0x00; data[1]=0x38; i2c_write(I2C_lcd,data,2);	// IS=0
 	data[0]=0x00; data[1]=0x0C; i2c_write(I2C_lcd,data,2);	// DisplayON	C
-	i2c_lcd_print("Hello!  I2C LCD by Wataru Kunino");
+//	i2c_lcd_print("Hello!  I2C LCD by Wataru Kunino");
 }
 
 void i2c_lcd_init_xy(byte x, byte y){
