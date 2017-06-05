@@ -53,6 +53,7 @@ int main(int argc,char **argv){
     char gpio[]="/sys/class/gpio/gpio00/value";                 // gpio[20-21]
     char dir[] ="/sys/class/gpio/gpio00/direction";             // dir[20-21]
     char wipi[]="/usr/local/bin/gpio -g mode 00 up/down/tri 2>/dev/null";
+    char wip2[]="/usr/bin/gpio -g mode 00 up/down/tri 2>/dev/null";
                                                                 // wipi[28-29]
     char s[S_NUM];
     int i;                  // ループ用
@@ -182,21 +183,24 @@ int main(int argc,char **argv){
                 trig=value;
                 break;
             case 2: // PULL UP
-                wipi[28]='\0';
+                wipi[28]='\0'; wip2[22]='\0';
+                sprintf(wip2,"%s %d up 2> /dev/null",wip2,port);
                 sprintf(wipi,"%s %d up",wipi,port);
-                if(system(wipi)){
-                    fgpio = fopen(dir, "w");
-                    if(fgpio){
-                        fprintf(fgpio,"high\n");
-                        fclose(fgpio);
-                        pseudoPUpDown=1;
-                        #ifdef DEBUG
-                            printf("Port Pulled Up\n");
-                        #endif
-                    }else{
-                        fprintf(stderr,"IO Error\n");
-                        printf("9\n");
-                        return -1;
+                if(system(wip2)){
+                    if(system(wipi)){
+                        fgpio = fopen(dir, "w");
+                        if(fgpio){
+                            fprintf(fgpio,"high\n");
+                            fclose(fgpio);
+                            pseudoPUpDown=1;
+                            #ifdef DEBUG
+                                printf("Port Pulled Up\n");
+                            #endif
+                        }else{
+                            fprintf(stderr,"IO Error\n");
+                            printf("9\n");
+                            return -1;
+                        }
                     }
                 }
                 if( argc == 4 ){
@@ -207,21 +211,24 @@ int main(int argc,char **argv){
                 }
                 break;
             case 3: // PULL DOWN
-                wipi[28]='\0';
+                wipi[28]='\0'; wip2[22]='\0';
+                sprintf(wip2,"%s %d down 2> /dev/null",wip2,port);
                 sprintf(wipi,"%s %d down",wipi,port);
-                if(system(wipi)){
-                    fgpio = fopen(dir, "w");
-                    if(fgpio){
-                        fprintf(fgpio,"low\n");
-                        fclose(fgpio);
-                        pseudoPUpDown=0;
-                        #ifdef DEBUG
-                            printf("Port Pulled Down\n");
-                        #endif
-                    }else{
-                        fprintf(stderr,"IO Error\n");
-                        printf("9\n");
-                        return -1;
+                if(system(wip2)){
+                    if(system(wipi)){
+                        fgpio = fopen(dir, "w");
+                        if(fgpio){
+                            fprintf(fgpio,"low\n");
+                            fclose(fgpio);
+                            pseudoPUpDown=0;
+                            #ifdef DEBUG
+                                printf("Port Pulled Down\n");
+                            #endif
+                        }else{
+                            fprintf(stderr,"IO Error\n");
+                            printf("9\n");
+                            return -1;
+                        }
                     }
                 }
                 if( argc == 4 ){
