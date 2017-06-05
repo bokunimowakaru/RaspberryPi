@@ -1,13 +1,30 @@
 #include <stdio.h>              // 標準入出力を使用
 #include <stdlib.h>             // 型変換(atoi)を使用
-#define TEMPERATURE_OFFSET 25.0 // 補正値(RaspPi温度上昇)
+#include<string.h>
+int TEMPERATURE_OFFSET = 25.0;  // 補正値(RaspPi温度上昇)
 
-int main(){                     // プログラムのメイン関数
+int main(int argc,char **argv){
     FILE *pp;                   // コマンド出力用の変数pp
     char cmd[]=                 // コマンドをcmdに代入
     "cat /sys/devices/virtual/thermal/thermal_zone0/temp";
     float in;                   // 数値変数inを定義
     char s[8];                  // 文字列変数sを定義
+    
+    if( argc == 2 ){
+        in = atoi(argv[1]);
+        if(strcmp(argv[1],"pi3")==0) in=25.0;
+        if(strcmp(argv[1],"pi2")==0) in=22.0;
+        if(strcmp(argv[1],"pi1")==0) in=30.0;
+        if(strcmp(argv[1],"zerow")==0) in=12.0;
+        if(strcmp(argv[1],"zero")==0) in=6.0;
+        if(in)TEMPERATURE_OFFSET=in;
+        else if(strcmp(argv[1],"0")==0){
+            TEMPERATURE_OFFSET=0.0;
+        }else{
+            fprintf(stderr,"usage: %s [offset]\n",argv[0]);
+            return -1;
+        }
+    }
     
     pp = popen(cmd, "r");       // GPIO用ファイルを開く
     if( pp == NULL ){           // 失敗時
