@@ -15,7 +15,7 @@ int main(int argc,char **argv){
         if(strcmp(argv[1],"pi3")==0) in=25.0;
         if(strcmp(argv[1],"pi2")==0) in=21.0;
         if(strcmp(argv[1],"pi1")==0) in=26.0;
-        if(strcmp(argv[1],"zerow")==0) in=7.0;
+        if(strcmp(argv[1],"zerow")==0) in=11.0;
         if(strcmp(argv[1],"zero")==0) in=7.0;
         if(in)TEMPERATURE_OFFSET=in;
         else if(strcmp(argv[1],"0")==0){
