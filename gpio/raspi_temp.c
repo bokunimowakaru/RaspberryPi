@@ -13,10 +13,10 @@ int main(int argc,char **argv){
     if( argc == 2 ){
         in = atoi(argv[1]);
         if(strcmp(argv[1],"pi3")==0) in=25.0;
-        if(strcmp(argv[1],"pi2")==0) in=22.0;
-        if(strcmp(argv[1],"pi1")==0) in=30.0;
-        if(strcmp(argv[1],"zerow")==0) in=12.0;
-        if(strcmp(argv[1],"zero")==0) in=6.0;
+        if(strcmp(argv[1],"pi2")==0) in=21.0;
+        if(strcmp(argv[1],"pi1")==0) in=26.0;
+        if(strcmp(argv[1],"zerow")==0) in=7.0;
+        if(strcmp(argv[1],"zero")==0) in=7.0;
         if(in)TEMPERATURE_OFFSET=in;
         else if(strcmp(argv[1],"0")==0){
             TEMPERATURE_OFFSET=0.0;
