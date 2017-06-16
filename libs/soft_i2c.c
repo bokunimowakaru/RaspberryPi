@@ -6,9 +6,14 @@ Raspberry Pi用 ソフトウェアI2C ライブラリ  soft_i2c
 
 Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の学習用サンプル)
 
-                               			Copyright (c) 2014-2016 Wataru KUNINO
+                               			Copyright (c) 2014-2017 Wataru KUNINO
                                			http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
+
+//	通信の信頼性確保のため、戻り値の仕様を変更・統一しました。
+//	ヘッダファイルも変更しています。ご理解のほど、お願いいたします。
+//	0:成功 1:失敗
+//														2017/6/16	国野亘
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +32,8 @@ Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の�
 #define OUTPUT		"out"
 #define LOW			0
 #define HIGH		1
-#define	I2C_RAMDA	30					// I2C データシンボル長[us]
-#define GPIO_RETRY  50      			// GPIO 切換え時のリトライ回数
+#define	I2C_RAMDA	15					// I2C データシンボル長[us]
+#define GPIO_RETRY  10      			// GPIO 切換え時のリトライ回数
 #define S_NUM       16       			// 文字列の最大長
 //	#define DEBUG               		// デバッグモード
 
@@ -80,7 +85,8 @@ void i2c_log(const char *s){
 	i2c_debug(s,1);
 }
 
-void pinMode(char *port, char *mode){
+byte pinMode(char *port, char *mode){
+// 戻り値：０の時はエラー
 	int i=0;
 	char dir[]="/sys/class/gpio/gpio3/direction";
 	         // 0123456789012345678901234567890
@@ -93,7 +99,7 @@ void pinMode(char *port, char *mode){
 		if(fgpio){
 			fprintf(fgpio,mode);
 			fclose(fgpio);
-			break;
+			return 1;
 		}
 		delay(1);
 		i++;
@@ -101,9 +107,11 @@ void pinMode(char *port, char *mode){
     #ifdef DEBUG
     //	fprintf(stderr,"pinMode / GPIO_RETRY (%d/%d)\n",i,GPIO_RETRY);
     #endif
+    return 0;
 }
 
 byte digitalRead(char *port){
+// 戻り値：０の時はエラー
     fgpio = fopen(port, "r");
 	if( fgpio ){
 	    fgets(buf, S_NUM, fgpio);
@@ -115,38 +123,88 @@ byte digitalRead(char *port){
     return (byte)atoi(buf);
 }
 
-void digitalWrite(char *port, int value){
+byte digitalWrite(char *port, int value){
+// 戻り値：０の時はエラー
     fgpio = fopen(port, "w");
 	if( fgpio ){
 	    fprintf(fgpio,"%d\n",value);
 	    fclose(fgpio);
+	    return 1;
 	}
     #ifdef DEBUG
     //	fprintf(stderr,"digitalWrite %s %d\n",port,value);
     #endif
+    return 0;
 }
 
-void i2c_SCL(byte level){
-	if( level ){
-		pinMode(PORT_SCL, INPUT);
-	}else{
-		pinMode(PORT_SCL, OUTPUT);
-		digitalWrite(PORT_SCL, LOW);
+byte i2c_hard_reset(int port){
+	// 戻り値：０の時はエラー
+	FILE *pp;
+	char buf[9];
+	char com[]="/home/pi/RaspberryPi/gpio/raspi_gpo 00 0 &> /dev/null";
+			//	01234567890123456789012345678901234567890123456789012
+	if(port<1 || port>99) return 0;
+	com[36] = '\0';
+	sprintf(com,"%s%2d 0 &> /dev/null",com,port);
+	#ifdef DEBUG
+		printf("%s\n",com);
+	#endif
+	pp=popen(com,"r");
+	if(pp){
+		fgets(buf,8,pp);
+		pclose(pp);
+		if(buf[0] != '0'){
+			i2c_error("I2C_RESET(L) / IO Settiong Error");
+			return 0;
+		}
 	}
-	_delayMicroseconds(I2C_RAMDA);
+	delay(10);
+	com[36] = '\0';
+	sprintf(com,"%s%2d 1 &> /dev/null",com,port);
+	#ifdef DEBUG
+		printf("%s\n",com);
+	#endif
+	pp=popen(com,"r");
+	if(pp){
+		fgets(buf,8,pp);
+		pclose(pp);
+		if(buf[0] != '1'){
+			i2c_error("I2C_RESET(H) / IO Settiong Error");
+			return 0;
+		}
+	}
+	delay(10);
+	return 1;
 }
 
-void i2c_SDA(byte level){
+byte i2c_SCL(byte level){
+// 戻り値：０の時はエラー
+	byte ret=0;
 	if( level ){
-		pinMode(PORT_SDA, INPUT);
+		ret += !pinMode(PORT_SCL, INPUT);
 	}else{
-		pinMode(PORT_SDA, OUTPUT);
-		digitalWrite(PORT_SDA, LOW);
+		ret += !pinMode(PORT_SCL, OUTPUT);
+		ret += !digitalWrite(PORT_SCL, LOW);
 	}
 	_delayMicroseconds(I2C_RAMDA);
+	return !ret;
+}
+
+byte i2c_SDA(byte level){
+// 戻り値：０の時はエラー
+	byte ret=0;
+	if( level ){
+		ret += !pinMode(PORT_SDA, INPUT);
+	}else{
+		ret += !pinMode(PORT_SDA, OUTPUT);
+		ret += !digitalWrite(PORT_SDA, LOW);
+	}
+	_delayMicroseconds(I2C_RAMDA);
+	return !ret;
 }
 
 byte i2c_tx(const byte in){
+// 戻り値：０の時はエラー
 	int i;
     #ifdef DEBUG
     	char s[32];
@@ -172,15 +230,16 @@ byte i2c_tx(const byte in){
 	if(i==0 && ERROR_CHECK ){
 		i2c_SCL(0);							// (SCL)	L Out
 		i2c_log("no ACK");
-		return(0);
+		return 0;
 	}
     #ifdef DEBUG
     //	fprintf(stderr,"i2c_tx / GPIO_RETRY (%d/%d)\n",GPIO_RETRY-i,GPIO_RETRY);
     #endif
-	return(i);
+	return (byte)i;
 }
 
 byte i2c_init(void){
+// 戻り値：０の時はエラー
 	int i;
 
 	_micros_0();
@@ -190,7 +249,7 @@ byte i2c_init(void){
 	    if(fgpio==NULL ){
 	        i2c_error("I2C_Init / IO Settiong Error\n");
 	        printf("9\n");
-	        return i;
+	        return 0;
 	    }
 	    fprintf(fgpio,"%d\n",i + PORT_SDANUM);
 	    fclose(fgpio);
@@ -207,10 +266,11 @@ byte i2c_init(void){
     //	fprintf(stderr,"i2c_init / GPIO_RETRY (%d/%d)\n",GPIO_RETRY-i,GPIO_RETRY);
     #endif
 	_delayMicroseconds(I2C_RAMDA*8);
-	return(i);
+	return (byte)i;
 }
 
 byte i2c_close(void){
+// 戻り値：０の時はエラー
 	byte i;
 	i2c_log("i2c_close");
     for(i=0;i<2;i++){
@@ -218,16 +278,16 @@ byte i2c_close(void){
 	    if(fgpio==NULL ){
 	        fprintf(stderr,"IO Error\n");
 	        printf("9\n");
-	        return -1;
+	        return 0;
 	    }
 	    fprintf(fgpio,"%d\n",i + PORT_SDANUM);
 	    fclose(fgpio);
 	}
-	return 0;
+	return 1;
 }
 
 byte i2c_start(void){
-/* 0=エラー	*/
+// 戻り値：０の時はエラー
 //	if(!i2c_init())return(0);				// SDA,SCL  H Out
 	int i;
 
@@ -244,7 +304,7 @@ byte i2c_start(void){
 	i2c_SDA(0);								// (SDA)	L Out
 	_delayMicroseconds(I2C_RAMDA);
 	i2c_SCL(0);								// (SCL)	L Out
-	return(i);
+	return (byte)i;
 }
 
 byte i2c_read(byte adr, byte *rx, byte len){
@@ -256,12 +316,12 @@ byte i2c_read(byte adr, byte *rx, byte len){
 */
 	byte ret,i;
 	
-	if( !i2c_start() && ERROR_CHECK) return(0);
+	if( !i2c_start() && ERROR_CHECK) return 0;
 	adr <<= 1;								// 7ビット->8ビット
 	adr |= 0x01;							// RW=1 受信モード
 	if( i2c_tx(adr)==0 && ERROR_CHECK ){	// アドレス設定
 		i2c_error("I2C_RX / no ACK (Address)");
-		return(0);		
+		return 0;		
 	}
 	
 	/* スレーブ待機状態待ち */
@@ -271,7 +331,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 	}
 	if(i==0 && ERROR_CHECK){
 		i2c_error("I2C_RX / no ACK (Reading)");
-		return(0);
+		return 0;
 	}
 	for(i=10;i>0;i--){
 		_delayMicroseconds(I2C_RAMDA);
@@ -279,7 +339,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 	}
 	if(i==0 && ERROR_CHECK){
 		i2c_error("I2C_RX / Clock Line Holded");
-		return(0);
+		return 0;
 	}
 	/* 受信データ */
 	for(ret=0;ret<len;ret++){
@@ -310,7 +370,7 @@ byte i2c_read(byte adr, byte *rx, byte len){
 	i2c_SCL(1);								// (SCL)	H Imp
 	_delayMicroseconds(I2C_RAMDA);
 	i2c_SDA(1);								// (SDA)	H Imp
-	return(ret);
+	return ret;
 }
 
 byte i2c_write(byte adr, byte *tx, byte len){
@@ -318,9 +378,10 @@ byte i2c_write(byte adr, byte *tx, byte len){
 入力：byte adr = I2Cアドレス(7ビット)
 入力：byte *tx = 送信データ用ポインタ
 入力：byte len = 送信データ長（0のときはアドレスのみを送信する）
+戻り値：０の時はエラー(または送信データ長0)
 */
 	byte ret=0;
-	if( !i2c_start() ) return(0);
+	if( !i2c_start() ) return 0;
 	adr <<= 1;								// 7ビット->8ビット
 	adr &= 0xFE;							// RW=0 送信モード
 	if( i2c_tx(adr)>0 ){
@@ -330,12 +391,12 @@ byte i2c_write(byte adr, byte *tx, byte len){
 			i2c_SCL(0);						// (SCL)	L Out
 			if( i2c_tx(tx[ret]) == 0 && ERROR_CHECK){
 				i2c_error("i2c_write / no ACK (Writing)");
-				return(0);
+				return 0;
 			}
 		}
 	}else if( len>0 && ERROR_CHECK){		// len=0の時はエラーにしないAM2320用
 		i2c_error("i2c_write / no ACK (Address)");
-		return(0);
+		return 0;
 	}
 	/* STOP */
 	i2c_SDA(0);								// (SDA)	L Out
@@ -345,25 +406,32 @@ byte i2c_write(byte adr, byte *tx, byte len){
 	i2c_SCL(1);								// (SCL)	H Imp
 	_delayMicroseconds(I2C_RAMDA);
 	i2c_SDA(1);								// (SDA)	H Imp
-	return(ret);
+	return ret;
 }
 
-void i2c_lcd_out(byte y,byte *lcd){
+byte i2c_lcd_out(byte y,byte *lcd){
+// 戻り値：０の時はエラー
 	byte data[2];
 	byte i;
+	byte ret=0;
+
 	data[0]=0x00;
 	if(y==0) data[1]=0x80;
 	else{
 		data[1]=0xC0;
 		y=1;
 	}
-	i2c_write(I2C_lcd,data,2);
+	ret += !i2c_write(I2C_lcd,data,2);
 	for(i=0;i<_lcd_size_x;i++){
 		if(lcd[i]==0x00) break;
 		data[0]=0x40;
 		data[1]=lcd[i];
-		i2c_write(I2C_lcd,data,2);
+		ret += !i2c_write(I2C_lcd,data,2);
 	}
+	#ifdef DEBUG
+		if(ret)fprintf(stderr,"ERROR LOD_OUT Y=%d [%s]\n",y,lcd);
+	#endif
+	return !ret;
 }
 
 void utf_del_uni(char *s){
@@ -385,32 +453,39 @@ void utf_del_uni(char *s){
 	// fprintf(stderr,"len=%d\n",j);
 }
 
-	void i2c_lcd_print(char *s);
+	byte i2c_lcd_print(char *s);
 
-void i2c_lcd_init(void){
+byte i2c_lcd_init(void){
+// 戻り値：０の時はエラー
+	byte ret=0;
 	byte data[2];
-	data[0]=0x00; data[1]=0x39; i2c_write(I2C_lcd,data,2);	// IS=1
-	data[0]=0x00; data[1]=0x11; i2c_write(I2C_lcd,data,2);	// OSC
-	data[0]=0x00; data[1]=0x70; i2c_write(I2C_lcd,data,2);	// コントラスト	0
-	data[0]=0x00; data[1]=0x56; i2c_write(I2C_lcd,data,2);	// Power/Cont	6
-	data[0]=0x00; data[1]=0x6C; i2c_write(I2C_lcd,data,2);	// FollowerCtrl	C
+
+	data[0]=0x00; data[1]=0x39; ret+=!i2c_write(I2C_lcd,data,2);	// IS=1
+	data[0]=0x00; data[1]=0x11; ret+=!i2c_write(I2C_lcd,data,2);	// OSC
+	data[0]=0x00; data[1]=0x70; ret+=!i2c_write(I2C_lcd,data,2);	// コントラスト	0
+	data[0]=0x00; data[1]=0x56; ret+=!i2c_write(I2C_lcd,data,2);	// Power/Cont	6
+	data[0]=0x00; data[1]=0x6C; ret+=!i2c_write(I2C_lcd,data,2);	// FollowerCtrl	C
 	delay(200);
-	data[0]=0x00; data[1]=0x38; i2c_write(I2C_lcd,data,2);	// IS=0
-	data[0]=0x00; data[1]=0x0C; i2c_write(I2C_lcd,data,2);	// DisplayON	C
+	data[0]=0x00; data[1]=0x38; ret+=!i2c_write(I2C_lcd,data,2);	// IS=0
+	data[0]=0x00; data[1]=0x0C; ret+=!i2c_write(I2C_lcd,data,2);	// DisplayON	C
 //	i2c_lcd_print("Hello!  I2C LCD by Wataru Kunino");
+	return !ret;
 }
 
-void i2c_lcd_init_xy(byte x, byte y){
+byte i2c_lcd_init_xy(byte x, byte y){
+// 戻り値：０の時はエラー
 	if(x==16||x==8||x==20) _lcd_size_x=x;
 	if(y==1 ||y==2) _lcd_size_y=y;
-	i2c_lcd_init();
+	return i2c_lcd_init();
 }
 
-void i2c_lcd_print(char *s){
+byte i2c_lcd_print(char *s){
+// 戻り値：０の時はエラー
 	byte i,j;
 	char str[65];
 	byte lcd[21];
-	
+	byte ret=0;
+
 	strncpy(str,s,64);
 	utf_del_uni(str);
 	for(j=0;j<2;j++){
@@ -419,19 +494,22 @@ void i2c_lcd_print(char *s){
 			lcd[i]=(byte)str[i+_lcd_size_x*j];
 			if(lcd[i]==0x00){
 				for(;i<_lcd_size_x;i++) lcd[i]=' ';
-				i2c_lcd_out(j,lcd);
+				ret += !i2c_lcd_out(j,lcd);
 				if(j==0){
 					for(i=0;i<_lcd_size_x;i++) lcd[i]=' ';
-					i2c_lcd_out(1,lcd);
+					ret += !i2c_lcd_out(1,lcd);
 				}
-				return;
+				return !ret;
 			}
 		}
-		i2c_lcd_out(j,lcd);
+		ret += !i2c_lcd_out(j,lcd);
 	}
+	return !ret;
 }
 
-void i2c_lcd_print2(char *s){
+byte i2c_lcd_print2(char *s){
+// 戻り値：０の時はエラー
+	byte ret=0;
 	byte i;
 	char str[65];
 	byte lcd[21];
@@ -443,15 +521,17 @@ void i2c_lcd_print2(char *s){
 		lcd[i]=(byte)str[i];
 		if(lcd[i]==0x00){
 			for(;i<_lcd_size_x;i++) lcd[i]=' ';
-			i2c_lcd_out(1,lcd);
-			return;
+			ret += !i2c_lcd_out(1,lcd);
+			return !ret;
 		}
 	}
-	i2c_lcd_out(1,lcd);
+	ret += !i2c_lcd_out(1,lcd);
+	return !ret;
 }
 
 
-void i2c_lcd_print_ip(uint32_t ip){
+byte i2c_lcd_print_ip(uint32_t ip){
+// 戻り値：０の時はエラー
 	char lcd[21];
 	
 	if(_lcd_size_x<=8){
@@ -471,10 +551,11 @@ void i2c_lcd_print_ip(uint32_t ip){
 			ip>>24
 		);
 	}
-	i2c_lcd_print(lcd);
+	return i2c_lcd_print(lcd);
 }
 
-void i2c_lcd_print_ip2(uint32_t ip){
+byte i2c_lcd_print_ip2(uint32_t ip){
+// 戻り値：０の時はエラー
 	char lcd[21];
 	
 	sprintf(lcd,"%i.%i.%i.%i",
@@ -483,15 +564,18 @@ void i2c_lcd_print_ip2(uint32_t ip){
 		ip>>16 & 255,
 		ip>>24
 	);
-	if(_lcd_size_x>=16) i2c_lcd_print2(lcd);
-	else i2c_lcd_print(lcd);
+	if(_lcd_size_x>=16) return i2c_lcd_print2(lcd);
+	else return i2c_lcd_print(lcd);
 }
 
-void i2c_lcd_print_val(char *s,int in){
+byte i2c_lcd_print_val(char *s,int in){
+// 戻り値：０の時はエラー
+	byte ret=0;
 	char lcd[21];
 	sprintf(lcd,"%d",in);
-	i2c_lcd_print(s);
-	i2c_lcd_print2(lcd);
+	ret += !i2c_lcd_print(s);
+	ret += !i2c_lcd_print2(lcd);
+	return !ret;
 }
 
 /*******************************************************************************
@@ -579,20 +663,23 @@ void time2txt(char *date,unsigned long local){
 	sprintf(date,"%4d/%02d/%02d,%02d:%02d:%02d",Year,Month,Day,Hour,Minute,Second);
 }
 
-void i2c_lcd_print_time(unsigned long local){
+byte i2c_lcd_print_time(unsigned long local){
+// 戻り値：０の時はエラー
+	byte ret=0;
 	char date[20];	//	0123456789012345678
 					//	2014/01/01,12:34:56
 	
 	time2txt(date,local);
 	if(_lcd_size_x<=8){
 		date[10]='\0';
-		i2c_lcd_print(&date[2]);
-		i2c_lcd_print2(&date[11]);
+		ret += !i2c_lcd_print(&date[2]);
+		ret += !i2c_lcd_print2(&date[11]);
 	}else if(_lcd_size_x>=19){
-		i2c_lcd_print(date);
+		ret += !i2c_lcd_print(date);
 	}else if(_lcd_size_x>=10){
 		date[10]='\0';
-		i2c_lcd_print(date);
-		i2c_lcd_print2(&date[11]);
+		ret += !i2c_lcd_print(date);
+		ret += !i2c_lcd_print2(&date[11]);
 	}
+	return !ret;
 }
