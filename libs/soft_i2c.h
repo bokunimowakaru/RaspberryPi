@@ -6,7 +6,7 @@ Raspberry Pi用 ソフトウェアI2C ライブラリ  soft_i2c
 
 Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の学習用サンプル)
 
-                               			Copyright (c) 2014-2016 Wataru KUNINO
+                               			Copyright (c) 2014-2017 Wataru KUNINO
                                			http://www.geocities.jp/bokunimowakaru/
 *******************************************************************************/
 
