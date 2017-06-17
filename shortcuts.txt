@@ -219,6 +219,28 @@ HTTPサーバ
 	sudo leafpad /var/www/html/index.html
 	sudo chown pi.pi /var/www/html/index.html
 
+■ 便利な alias (.bashrcへ登録)
+
+	#ファイル削除時などに問い合わせ確認を行う
+	alias rm='rm -i'
+	alias mv='mv -i'
+	alias cp='cp -i'
+
+	#ファイルの種別に応じた色とマーク表示
+	alias ls='ls -F --color=auto'
+
+	#ファイルの種別に応じた色とマーク表示
+	alias ll='ls -laF --color=auto'
+
+	#プロセス表示を開始時刻順に表示
+	alias ps='ps --sort=start_time'
+
+	#バイナリファイルのダンプ表示
+	alias dump='od -Ax -tx1z'
+
+	#ソースリスト(*.cと*.ino、*.sh)内の文字検索
+	alias search='find . -type f \( -name "*.c" -o -name "*.ino" -o -name "*.sh" \) -print0 | xargs -0 grep'
+
 ■ 関連リンク
 
 ボクにもわかるRaspberry Pi
@@ -226,5 +248,5 @@ HTTPサーバ
 	http://www.geocities.jp/bokunimowakaru/q/pi/
 
 --------------------------------------------------------------------------------
-                                         Copyright (c) 2015-2016 Wataru KUNINO
+                                         Copyright (c) 2015-2017 Wataru KUNINO
                                          http://www.geocities.jp/bokunimowakaru/
