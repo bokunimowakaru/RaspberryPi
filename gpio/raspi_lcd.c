@@ -34,6 +34,7 @@ int main(int argc,char **argv){
 				num++;
 				PORT = atoi(argv[num]);
 			}
+			printf("reset (%d)\n",PORT);
 			i2c_hard_reset(PORT);
 		}
 		num++;
