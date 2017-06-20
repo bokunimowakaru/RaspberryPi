@@ -1,5 +1,6 @@
 このファイルは、コマンドライン入力を簡略化するためのショートカット集です。
 コピー＆ペースト機能を使うことでコマンドやURLの入力の手間を省くことができます。
+（本ファイルの文字コードはUTF8、改行コードはCR+LFです。）
 
 
 ■ 第１章	Raspberry Piの使い方
@@ -33,11 +34,23 @@ IPアドレスを確認する
 	ping -b 244.0.0.1
 
 リモートデスクトップ用サーバ xrdp のインストール
-	sudo apt-get install xrdp
+
+	インストール不要：sudo apt-get install xrdp
+
+	※最新のRaspbianには類似のソフトVNC Serverが含まれているので、
+	　xrdp をインストールすることなく Windows からアクセスできます。
+	　使用にするには、Raspberry Piの「設定」の「インターフェイス」
+	　タブ内の「VNC」を有効にしてください。
+	　PC側のクライアントソフトは、VNC-Viewerをダウンロードしてくだ
+	　さい。
+	https://www.realvnc.com/ 
 
 ファイル共有サーバ Samba のインストール
 	sudo apt-get install samba
 	sudo leafpad /etc/samba/smb.conf &
+		[homes]
+			read only = no
+			create mask = 0644
 	sudo pdbedit -a pi
 	sudo /etc/init.d/samba restart
 
@@ -68,6 +81,7 @@ Text Editorのインストール
 ■ 第３章	Linux上でC言語プログラミング演習
 
 練習用プログラムのダウンロード
+	cd
 	git clone https://github.com/bokunimowakaru/RaspberryPi.git
 
 練習用プログラムのフォルダへ移動
@@ -87,7 +101,7 @@ Text Editorのインストール
 	./practice08
 
 GPIOの制御
-	cd RaspeberryPi/gpio
+	cd ~/RaspeberryPi/gpio
 	make
 	./raspi_gpo 4 1
 	./raspi_gpo 4 0
@@ -97,6 +111,15 @@ GPIO使用ポートの開放
 
 温度を測定する
 	cat /sys/devices/virtual/thermal/thermal_zone0/temp
+
+[追記] WiringPi
+	最新のRaspbianにはWiringPiがインストールされており、gpioコマンドで
+	簡単にGPIOを制御することが可能になりました。
+
+	GPIOポート4(7番ピン)を出力に設定する
+	gpio -g mode 4 out
+	GPIOポート4(7番ピン)を出力にHighに設定する
+	gpio -g write 4 1
 
 ■ XBee ZigBee 通信
 
@@ -240,6 +263,9 @@ HTTPサーバ
 
 	#ソースリスト(*.cと*.ino、*.sh)内の文字検索
 	alias search='find . -type f \( -name "*.c" -o -name "*.ino" -o -name "*.sh" \) -print0 | xargs -0 grep'
+
+	#GPIOの状態一覧表示
+	function gpiolist() { clear;while true;do tput cup 0 0;gpio readall;if [ $# -eq 0 ];then sleep 1;else sleep $1;fi;done }
 
 ■ 関連リンク
 
