@@ -8,6 +8,7 @@ PROGS =	raspi_gpi \
 all: $(PROGS)
 		gcc -Wall -O1 -c ../libs/soft_i2c.c -o soft_i2c.o
 		gcc -Wall -O1 -c ../libs/uart.c -o uart.o
+		gcc -Wall -O1 raspi_i2cdetect.c soft_i2c.o -o raspi_i2cdetect
 		gcc -Wall -O1 raspi_lcd.c soft_i2c.o -o raspi_lcd
 		gcc -Wall -O1 raspi_bme280.c soft_i2c.o -o raspi_bme280
 		gcc -Wall -O1 raspi_hdc1000.c soft_i2c.o -o raspi_hdc1000
