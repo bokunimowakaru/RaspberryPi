@@ -16,7 +16,7 @@ NOOBS
 	sudo apt-get install fonts-takao
 
 Raspbianのシャットダウン
-	sudo shutdown now
+	sudo shutdown -h now
 
 オフィスソフト LibreOffice のインストール
 	sudo apt-get install libreoffice
@@ -216,6 +216,23 @@ BLE GATTコマンド(READ)送信
 
 BLE GATTコマンド(WRITE)送信
 	sudo gatttool -b 00:1B:DC:44:xx:xx --char-write -a 0x000d -n 01
+
+■ Raspberry Pi 3 / Pi Zero W でのGPIO端子のUART制約事項
+
+拡張用GPIO端子を使った各種シリアル通信 (/dev/ttyAMA0)
+	内蔵の Bluetooth機能を無効する
+		sudo raspi-config または「設定」⇒「Interface」⇒「Serial」
+			The serial login shell is disabled
+			The serial interface is enabled
+	boot/config.txt に下記を追加
+		dtoverlay=pi3-disable-bt
+	sudo reboot
+	それでも動かない場合はシリアルシェル（コンソール）を無効に
+		sudo systemctl stop serial-getty@ttyS0.service
+		sudo systemctl disable serial-getty@ttyS0.service
+		または
+		sudo systemctl stop serial-getty@ttyAMA0.service
+		sudo systemctl disable serial-getty@ttyAMA0.service
 
 ■ インターネット通信
 
