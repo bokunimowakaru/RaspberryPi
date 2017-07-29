@@ -307,6 +307,31 @@ byte i2c_start(void){
 	return (byte)i;
 }
 
+byte i2c_check(byte adr){
+/*
+入力：byte adr = I2Cアドレス(7ビット)
+戻り値：０の時はエラー
+*/
+	byte ret;
+	if( !i2c_start() ) {
+		i2c_error("i2c_check / aborted i2c_start");
+		return 0;
+	}
+	adr <<= 1;								// 7ビット->8ビット
+	adr &= 0xFE;							// RW=0 送信モード
+	ret=i2c_tx(adr);
+
+	/* STOP */
+	i2c_SDA(0);								// (SDA)	L Out
+	i2c_SCL(0);								// (SCL)	L Out
+	_delayMicroseconds(I2C_RAMDA);
+	i2c_SCL(1);								// (SCL)	H Imp
+	_delayMicroseconds(I2C_RAMDA);
+	i2c_SDA(1);								// (SDA)	H Imp
+	return ret;
+}
+
+
 byte i2c_read(byte adr, byte *rx, byte len){
 /*
 入力：byte adr = I2Cアドレス(7ビット)

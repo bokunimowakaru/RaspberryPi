@@ -31,6 +31,7 @@ byte i2c_tx(const byte in);
 byte i2c_init(void);
 byte i2c_close(void);
 byte i2c_start(void);
+byte i2c_check(byte adr);
 byte i2c_read(byte adr, byte *rx, byte len);
 byte i2c_write(byte adr, byte *tx, byte len);
 byte i2c_lcd_out(byte y,byte *lcd);
