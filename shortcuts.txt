@@ -56,6 +56,7 @@ IPアドレスを確認する
 
 Raspbianのアップデート
 	sudo apt-get update
+	sudo apt-get upgrade
 	sudo apt-get dist-upgrade
 	sudo rpi-update
 		command not found が表示される場合：
