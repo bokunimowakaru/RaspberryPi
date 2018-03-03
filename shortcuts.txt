@@ -2,6 +2,17 @@
 コピー＆ペースト機能を使うことでコマンドやURLの入力の手間を省くことができます。
 （本ファイルの文字コードはUTF8、改行コードはCR+LFです。）
 
+■ お知らせ
+Raspberry PiのOSのバージョンによって、異なる場合があります。
+
+バージョンの確認方法
+	cat /etc/debian_version
+
+バージョン,コード名
+	6	Squeeze	初期のRaspberry Pi用OS
+	7	Wheezy	2015年ごろまで使われていたOS
+	8	Jessie	本書執筆時の最新OS
+	9	Sretch	執筆後に登場した最新OS
 
 ■ 第１章	Raspberry Piの使い方
 
@@ -12,14 +23,14 @@ NOOBS
 	https://www.raspberrypi.org/downloads/NOOBS/
 
 フォントのインストール(文字化けする場合のみ)
-	sudo apt-get install ttf-kochi-gothic
-	sudo apt-get install fonts-takao
+	sudo apt-get install ttf-kochi-gothic	# 最新版では不要
+	sudo apt-get install fonts-takao	# 最新版では不要
 
 Raspbianのシャットダウン
 	sudo shutdown -h now
 
 オフィスソフト LibreOffice のインストール
-	sudo apt-get install libreoffice
+	sudo apt-get install libreoffice	# 最新版では不要
 
 IPアドレスを確認する
 	ifconfig
@@ -31,11 +42,11 @@ IPアドレスを確認する
 	sudo service networking restart
 
 ブロードキャストPING(終了は[Ctrl]+[C])
-	ping -b 244.0.0.1
+	ping -b 255.255.255.255
 
 リモートデスクトップ用サーバ xrdp のインストール
 
-	インストール不要：sudo apt-get install xrdp
+	sudo apt-get install xrdp	# 最新版では不要
 
 	※最新のRaspbianには類似のソフトVNC Serverが含まれているので、
 	　xrdp をインストールすることなく Windows からアクセスできます。
@@ -52,7 +63,7 @@ IPアドレスを確認する
 			read only = no
 			create mask = 0644
 	sudo pdbedit -a pi
-	sudo /etc/init.d/samba restart
+	sudo /etc/init.d/samba restart	# 最新版では不要
 
 Raspbianのアップデート
 	sudo apt-get update
@@ -65,7 +76,7 @@ Raspbianのアップデート
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方
 
-Text Editorのインストール
+Text Editorのインストール(leafpadが起動しないときのみ)
 	sudo apt-get install leafpad
 
 システムファイルの編集
@@ -115,13 +126,13 @@ GPIO使用ポートの開放
 温度を測定する
 	cat /sys/devices/virtual/thermal/thermal_zone0/temp
 
-[追記] WiringPi
-	最新のRaspbianにはWiringPiがインストールされており、gpioコマンドで
-	簡単にGPIOを制御することが可能になりました。
+■ WiringPi 【執筆後の追記】
+最新のRaspbianにはWiringPiがインストールされており、gpioコマンドで
+簡単にGPIOを制御することが可能になりました。
 
-	GPIOポート4(7番ピン)を出力に設定する
+GPIOポート4(7番ピン)を出力に設定する
 	gpio -g mode 4 out
-	GPIOポート4(7番ピン)を出力にHighに設定する
+GPIOポート4(7番ピン)を出力にHighに設定する
 	gpio -g write 4 1
 
 ■ XBee ZigBee 通信
@@ -175,7 +186,7 @@ Wi-Fiアクセスポイントの設定
 	    group=CCMP TKIP WEP104 WEP40
 	}
 
-Wi-Fi用DHCPクライアントの設定
+Wi-Fi用DHCPクライアントの設定(最新版では不要)
 	sudo leafpad /etc/network/interfaces &
 	iface wlan0 inet dhcp
 
@@ -187,13 +198,13 @@ Wi-Fi用DHCPクライアントの設定
 ■ Bluetooth 通信
 
 Bluetooth プロトコルスタックのインストール
-	sudo apt-get install bluez
+	sudo apt-get install bluez	# 最新版では不要
 
 シリアル端末cuのインストール
 	sudo apt-get install cu
 
 Bluetooth RFCOMM接続
-	hcitool scan
+	hcitool scan	# 最新版では不要
 	sudo rfcomm connect /dev/rfcomm 00:00:00:00:00:00
 
 	cu -h -s 115200 -l /dev/rfcomm0
@@ -202,7 +213,7 @@ Bluetooth RFCOMM接続
 ■ Bluetooth Low Energy 通信
 
 Bluetooth プロトコルスタックのインストール
-	sudo apt-get install bluez
+	sudo apt-get install bluez	# 最新版では不要
 	sudo apt-get install bluez-hcidump
 
 BLE受信
@@ -220,7 +231,7 @@ BLE GATTコマンド(READ)送信
 BLE GATTコマンド(WRITE)送信
 	sudo gatttool -b 00:1B:DC:44:xx:xx --char-write -a 0x000d -n 01
 
-■ Raspberry Pi 3 / Pi Zero W でのGPIO端子のUART制約事項
+■ Raspberry Pi 3 / Pi Zero W でのGPIO端子のUART制約事項【執筆後の追記】
 
 拡張用GPIO端子を使った各種シリアル通信 (/dev/ttyAMA0)
 	内蔵の Bluetooth機能を無効する
@@ -271,8 +282,6 @@ HTTPサーバ
 
 	#ファイルの種別に応じた色とマーク表示
 	alias ls='ls -F --color=auto'
-
-	#ファイルの種別に応じた色とマーク表示
 	alias ll='ls -laF --color=auto'
 
 	#プロセス表示を開始時刻順に表示
