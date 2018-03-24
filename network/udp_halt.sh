@@ -2,7 +2,8 @@
 # HALTコマンドをUDPで受信してシャットダウンする
 # Copyright (c) 2018 Wataru KUNINO
 
-# nohup /home/pi/udp_halt.sh &>> /home/pi/start.log &
+# /etc/rc.local へ下記を追加する
+# nohup /home/pi/RaspberryPi/network/udp_halt.sh &>> /home/pi/start.log &
 
 echo "UDP HALTER (usage: ${0} port)"                # タイトル表示
 if [ ${#} = 1 ]                                     # 入力パラメータ数の確認
@@ -32,7 +33,7 @@ do                                                  # 繰り返し
     echo -E $DATE, $UDP                             # 取得日時とデータを表示
     case "$DEV" in                                  # DEVの内容に応じて
         "uhalt_0" ) VAL=`echo -E $UDP|tr -d ' '|cut -d, -f2`
-                    if [ $DET -eq 1 ]; then         # 受信値が1のとき
+                    if [ $VAL -eq 1 ]; then         # 受信値が1のとき
                         sudo shutdown -h            # シャットダウンを実行
                     fi ;;
     esac
