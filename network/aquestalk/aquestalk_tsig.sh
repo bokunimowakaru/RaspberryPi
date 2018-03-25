@@ -20,8 +20,8 @@ if [ ${HOUR} -ge ${TIME_START} ] && [ ${HOUR} -le ${TIME_END} ]; then
     fi
     # 再生の実行と、5秒後にaplayプロセスの終了
     echo ${TALK}
-    aplay /home/pi/esp/3_misc/sound/se_maoudamashii_voice_bird02.wav &
+    aplay /home/pi/RaspberryPi/network/aquestalk/sounds/se_maoudamashii_voice_bird02.wav &
     sleep 0.2
-    /home/pi/esp/tools/aquestalkpi/AquesTalkPi "${TALK}"|aplay &
+    /home/pi/RaspberryPi/network/aquestalk/aquestalkpi/AquesTalkPi "${TALK}"|aplay &
     (sleep 5; kill `pidof aplay`) &> /dev/null &
 fi

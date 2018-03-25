@@ -15,7 +15,7 @@
 # 実行方法
 #       ./aquestalk_speaker.sh &
 #       または
-#       nohup nice -18 /home/pi/esp/tools/aquestalk_speaker.sh 2>> /home/pi/err.log > /dev/null &
+#       nohup nice -18 /home/pi/RaspberryPi/network/aquestalk/aquestalk_speaker.sh 2>> /home/pi/err.log > /dev/null &
 #                                               ※音が割れる場合はnicce -10～-20を追加する
 #
 # 再生方法
@@ -59,7 +59,7 @@ Connection: close\n\
 </html>\n\
 \n\
 "
-aplay ../3_misc/sound/se_maoudamashii_chime10.wav &
+aplay sounds/se_maoudamashii_chime10.wav &
 sleep 0.5
 aquestalkpi/AquesTalkPi '"起動しました。IPアドレスは'${IP}'です。"' |aplay &
 (sleep 10; kill `pidof aplay`) &> /dev/null &
@@ -98,7 +98,7 @@ do                                                      # 繰り返し
             fi
             kill `pidof aplay` &> /dev/null
             sleep 0.5
-            aplay ../3_misc/sound/se_maoudamashii_chime10.wav &
+            aplay sounds/se_maoudamashii_chime10.wav &
             sleep 0.5
             aquestalkpi/AquesTalkPi -g ${VOL} "${TALK}"|aplay &     # 音声再生
             # (sleep 10; kill `pidof aplay`) &> /dev/null &
