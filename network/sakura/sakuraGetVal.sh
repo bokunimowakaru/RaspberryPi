@@ -17,7 +17,7 @@
 TALKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"       # トークン
 
 DEVICE="sakra_1"                                    # 識別名
-INTERVAL=3                                          # 確認間隔
+INTERVAL=10                                         # 確認間隔
 
 while true; do
     DATA=`curl --max-time $INTERVAL -s -N \
