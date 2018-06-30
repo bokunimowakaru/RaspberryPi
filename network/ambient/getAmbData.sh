@@ -8,11 +8,15 @@ AmbientReadKey="0123456789abcdef"                       # Readキー(16桁・同
 HOST="ambidata.io"                                      # Ambientのアドレス
 
 if [ "$#" -lt 1 ]; then
-    echo "Usage: ${0} number"
+    echo "Usage: ${0} number, 0=all"
     NUM=3
 else
     NUM=${1}
 fi
+if [ $NUM -lt 0 ]; then
+    NUM=$(( - NUM ))
+fi
+
 if [ -f ~/.ambientkeys ];then                           # 設定ファイル確認
     source ~/.ambientkeys                               # 設定ファイルロード済み
 fi
@@ -26,29 +30,63 @@ if [ $AmbientChannelId -le 100 ];then
 fi
 echo "Ambient Channel Id =" $AmbientChannelId           # チャンネルID表示
 
-curl -s \
-"${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${NUM}"\
-| tr -d "[{" \
-| tr "}" "\n" \
-| while read JSON; do
-    DATE=`echo $JSON\
-    |tr "," "\n" \
-    |grep "\"created\"" \
-    |cut -c12-30 \
-    |tr "-" "/"\
-    |tr "T" " "`                                        # 日時データを抽出
-    if [ -n "$DATE" ];then                              # データがあるとき
-        DATE=`date --date "${DATE} UTC" "+%Y/%m/%d %R"` # UTCをJST(等)へ変換
-        echo -n ${DATE}" "                              # 時刻を表示
-        for i in $(seq 1 8); do
-            VAL=`echo $JSON\
-            |tr "," "\n" \
-            |grep "\"d${i}\"" \
-            |cut -d":" -f2`                             # 値を抽出
-            if [ "$VAL" ];then
-                echo -n "d${i}="${VAL}" "
-            fi
-        done
-        echo
-    fi
-done                                                    # 繰り返し
+if [ $NUM -eq 0 ]; then
+    curl -s \
+    "${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${NUM}"\
+    > ambient_ch${AmbientChannelId}_tmp.json
+    cat ambient_ch${AmbientChannelId}_tmp.json\
+    | tr -d "[{" \
+    | tr "}" "\n" \
+    | while read JSON; do
+        DATE=`echo $JSON\
+        |tr "," "\n" \
+        |grep "\"created\"" \
+        |cut -c12-30 \
+        |tr "-" "/"\
+        |tr "T" " "`                                        # 日時データを抽出
+        if [ -n "$DATE" ];then                              # データがあるとき
+            DATE=`date --date "${DATE} UTC" "+%Y/%m/%d %R"` # UTCをJST(等)へ変換
+            echo -n ${DATE}" "                              # 時刻を表示
+            for i in $(seq 1 8); do
+                VAL=`echo $JSON\
+                |tr "," "\n" \
+                |grep "\"d${i}\"" \
+                |cut -d":" -f2`                             # 値を抽出
+                if [ "$VAL" ];then
+                    echo -n "d${i}="${VAL}" "
+                fi
+            done
+            echo
+        fi
+    done                                                    # 繰り返し
+    rm -f ambient_ch${AmbientChannelId}_tmp.json
+elif [ $NUM -gt 0 ]; then
+    curl -s \
+    "${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${NUM}"\
+    | tr -d "[{" \
+    | tr "}" "\n" \
+    | while read JSON; do
+        DATE=`echo $JSON\
+        |tr "," "\n" \
+        |grep "\"created\"" \
+        |cut -c12-30 \
+        |tr "-" "/"\
+        |tr "T" " "`                                        # 日時データを抽出
+        if [ -n "$DATE" ];then                              # データがあるとき
+            DATE=`date --date "${DATE} UTC" "+%Y/%m/%d %R"` # UTCをJST(等)へ変換
+            echo -n ${DATE}" "                              # 時刻を表示
+            for i in $(seq 1 8); do
+                VAL=`echo $JSON\
+                |tr "," "\n" \
+                |grep "\"d${i}\"" \
+                |cut -d":" -f2`                             # 値を抽出
+                if [ "$VAL" ];then
+                    echo -n "d${i}="${VAL}" "
+                fi
+            done
+            echo
+        fi
+    done
+fi
+
+
