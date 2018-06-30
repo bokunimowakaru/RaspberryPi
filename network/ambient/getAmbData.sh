@@ -12,25 +12,27 @@ if [ "$#" -lt 1 ]; then
     NUM=3
 else
     NUM=${1}
+    NUM=`echo $NUM|awk '{printf "%d",$1}'`
 fi
 if [ $NUM -lt 0 ]; then
     NUM=$(( - NUM ))
 fi
 
-if [ -f ~/.ambientkeys ];then                           # 設定ファイル確認
-    source ~/.ambientkeys                               # 設定ファイルロード済み
-fi
 if [ $AmbientChannelId -le 100 ];then
-    echo "AmbientからチャンネルIDとライトキー、リードキーを取得してください"
-    echo "「.ambientkeys」へ以下のように設定しておくと便利です。"
-    echo "AmbientChannelId=XXX"
-    echo "AmbientReadKey=\"0123456789abcdef\""
-    echo "AmbientWriteKey=\"0123456789abcdef\""
-    exit -1
+    if [ -f ~/.ambientkeys ];then                           # 設定ファイル確認
+        source ~/.ambientkeys                               # 設定ファイルロード済み
+    else
+        echo "AmbientからチャンネルIDとライトキー、リードキーを取得してください"
+        echo "「.ambientkeys」へ以下のように設定しておくと便利です。"
+        echo "AmbientChannelId=XXX"
+        echo "AmbientReadKey=\"0123456789abcdef\""
+        echo "AmbientWriteKey=\"0123456789abcdef\""
+        exit 1
+    fi
 fi
 echo "Ambient Channel Id =" $AmbientChannelId           # チャンネルID表示
 
-if [ $NUM -eq 0 ]; then
+if [ $NUM -eq 0 ] || [ $NUM -gt 100 ] ; then
     curl -s \
     "${HOST}/api/v2/channels/${AmbientChannelId}/data\?readKey=${AmbientReadKey}\&n=${NUM}"\
     > ambient_ch${AmbientChannelId}_tmp.json
@@ -88,5 +90,4 @@ elif [ $NUM -gt 0 ]; then
         fi
     done
 fi
-
-
+rm -f ambient_ch${AmbientChannelId}_tmp.json
