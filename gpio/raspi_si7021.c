@@ -46,7 +46,7 @@ uint8_t _si7021_getUserReg(){
 }
 
 void _si7021_setUserReg(uint8_t in){
-    uint8_t tx[2]={0xE7,in};
+    uint8_t tx[2]={0xE6,in};
     i2c_write(i2c_address,tx,2);     // 書込みの実行
     #ifdef DEBUG
         printf("Wrote User Register\n");
