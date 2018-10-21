@@ -300,7 +300,7 @@ HTTPサーバ
 
 ボクにもわかるRaspberry Pi
 
-	https://bokunimo.net/raspi/q/pi/
+	https://bokunimo.net/raspi/
 
 --------------------------------------------------------------------------------
                                          Copyright (c) 2015-2017 Wataru KUNINO
