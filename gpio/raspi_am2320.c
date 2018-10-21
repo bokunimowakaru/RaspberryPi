@@ -8,7 +8,7 @@ I2C接続のセンサから測定値を取得する
 Arduino標準ライブラリ「Wire」は使用していない(I2Cの手順の学習用サンプル)
 
                                         Copyright (c) 2014-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

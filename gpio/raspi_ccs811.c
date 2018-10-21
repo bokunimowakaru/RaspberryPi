@@ -10,7 +10,7 @@ AMS CCS811 Carbon Monoxide CO VOCs Air Quality Numerical Gas Sensors
 揮発性有機化合物 VOCガス
 二酸化炭素CO2(相当)
                                         Copyright (c) 2014-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 // usage: raspi_ccs811 [i2c_address]

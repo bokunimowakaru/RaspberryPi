@@ -300,8 +300,8 @@ HTTPサーバ
 
 ボクにもわかるRaspberry Pi
 
-	http://www.geocities.jp/bokunimowakaru/q/pi/
+	https://bokunimo.net/raspi/q/pi/
 
 --------------------------------------------------------------------------------
                                          Copyright (c) 2015-2017 Wataru KUNINO
-                                         http://www.geocities.jp/bokunimowakaru/
+                                         https://bokunimo.net/raspi/

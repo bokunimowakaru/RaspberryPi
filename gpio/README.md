@@ -95,5 +95,5 @@
 本資料を複製・改変・再配布する場合は著作権表示が必要です。
 
                   Copyright (C) 2015-2017 国野亘 (Wataru KUNINO)
-               http://www.geocities.jp/bokunimowakaru/diy/raspi/
+               https://bokunimo.net/raspi/
 ----------------------------------------------------------------

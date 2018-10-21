@@ -7,7 +7,7 @@ Raspberry Pi用 I2C 温度・湿度センサ SILICON LABS Si7021-A10 raspi_si702
 I2C接続のセンサから測定値を取得する
 
                                         Copyright (c) 2014-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 // usage: raspi_si7021 [i2c_address]

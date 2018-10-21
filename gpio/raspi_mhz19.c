@@ -6,8 +6,8 @@ Raspberry Pi用 UART 二酸化炭素CO2 ガスセンサ Winsen MH-Z19 for Raspbe
 
 UART接続のWinsen MH-Z19センサから測定値を取得する
 
-                                           Copyright (c) 2015-2017 Wataru KUNINO
-                                           http://www.geocities.jp/bokunimowakaru/raspi/
+                                       Copyright (c) 2015-2017 Wataru KUNINO
+                                       https://bokunimo.net/raspi/
 ***************************************************************************************/
 
 #include <stdio.h>                                  // 標準入出力用

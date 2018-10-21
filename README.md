@@ -2,7 +2,7 @@
 
 
 ボクにもわかるRaspberry Pi  
-http://www.geocities.jp/bokunimowakaru/q/pi/
+https://bokunimo.net/raspi/q/pi/
 
 ----------------------------------------------------------------
 ライセンス・著作権表示
@@ -10,5 +10,5 @@ http://www.geocities.jp/bokunimowakaru/q/pi/
 本資料を複製・改変・再配布する場合は著作権表示が必要です。
 
                 Copyright (C) 2015-2018 国野亘 (Wataru KUNINO)
-                       http://www.geocities.jp/bokunimowakaru/
+                       https://bokunimo.net/raspi/
 ----------------------------------------------------------------

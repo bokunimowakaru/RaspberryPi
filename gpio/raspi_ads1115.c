@@ -18,7 +18,7 @@ Raspberry Pi用 I2C 16bit ADコンバータ TI ADS1113 ADS1114 ADS1115
     ./raspi_ads1115 48 1                入力数を1に設定(ADS1113 ADS1114)
 
                                         Copyright (c) 2014-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

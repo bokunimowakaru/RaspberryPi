@@ -24,7 +24,7 @@ Raspberry Pi用 赤外線リモコン受信プログラム  raspi_ir_in
         0       正常終了
         -1      異常終了
                                         Copyright (c) 2015-2016 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

@@ -8,7 +8,7 @@ I2Cアドレス8～119（0x00～0x77）の応答を確認し、表示します�
 利用、編集、再配布等が自由に行えますが、著作権表示の改変は禁止します。
 
                                         Copyright (c) 2014-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

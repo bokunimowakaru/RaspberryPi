@@ -23,7 +23,7 @@ Raspberry Pi用 GPIO 出力プログラム  raspi_gpo
         0       正常終了
         -1      異常終了
                                         Copyright (c) 2015-2016 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

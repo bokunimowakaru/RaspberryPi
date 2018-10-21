@@ -33,7 +33,7 @@ Raspberry Pi用 GPIO 入力プログラム  raspi_gpi
         0       正常終了
         -1      異常終了
                                         Copyright (c) 2015-2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

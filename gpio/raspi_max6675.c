@@ -11,7 +11,7 @@ MAXIM社 MAX6675
 エラー時は-999.9℃を応答
 
                                         Copyright (c) 2017 Wataru KUNINO
-                                        http://www.geocities.jp/bokunimowakaru/
+                                        https://bokunimo.net/raspi/
 *******************************************************************************/
 
 #include <stdio.h>

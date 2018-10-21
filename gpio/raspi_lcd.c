@@ -12,7 +12,7 @@ I2C接続の小型液晶に文字を表示する
   -rPORT	液晶のリセット信号用GPIOポート番号
   
 										Copyright (c) 2014-2017 Wataru KUNINO
-										http://www.geocities.jp/bokunimowakaru/
+										https://bokunimo.net/raspi/
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
