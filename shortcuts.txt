@@ -65,6 +65,41 @@ IPアドレスを確認する
 	sudo pdbedit -a pi
 	sudo /etc/init.d/samba restart	# 最新版では不要
 
+ファイヤーウォール
+	sudo apt-get install iptables-persistent
+	sudo leafpad /etc/iptables/rules.v4
+		*filter
+		:INPUT   DROP   [0:0]
+		:FORWARD DROP   [0:0]
+		:OUTPUT  ACCEPT [0:0]
+		-A INPUT -i lo -j ACCEPT
+		-A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+		-A INPUT -p tcp ! --syn -m state --state NEW -j DROP
+		-A INPUT -p tcp --tcp-flags ALL ALL -j DROP
+		-A INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+		-A INPUT -p udp --sport 53 -j ACCEPT
+		-A INPUT -p tcp --dport 22 -j ACCEPT
+		-A INPUT -p tcp --dport 80   -j ACCEPT
+		# Ping
+		-I INPUT -p icmp --icmp-type 0 -j ACCEPT
+		-I INPUT -p icmp --icmp-type 8 -j ACCEPT
+		# UDP実験用
+		-A INPUT -p udp --dport 1024  -j ACCEPT
+		-A INPUT -p udp --dport 3054  -j ACCEPT
+		-A INPUT -p udp --dport 49152  -j ACCEPT
+		# SAMBA用
+		-A INPUT -p tcp --dport 139 -j ACCEPT
+		-A INPUT -p udp --dport 137 -j ACCEPT
+		-A INPUT -p udp --dport 138 -j ACCEPT
+		-A INPUT -p tcp --dport 445 -j ACCEPT
+		# node-red用
+		-A INPUT -p tcp --dport 1880 -j ACCEPT
+		# ntp用
+		-A INPUT -p udp --dport 123 -j ACCEPT
+		COMMIT
+
+	sudo iptables-apply /etc/iptables/rules.v4
+
 Raspbianのアップデート
 	sudo apt-get update
 	sudo apt-get upgrade
