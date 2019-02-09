@@ -331,6 +331,14 @@ HTTPサーバ
 	#GPIOの状態一覧表示
 	function gpiolist() { clear;while true;do tput cup 0 0;gpio readall;if [ $# -eq 0 ];then sleep 1;else sleep $1;fi;done }
 
+■ 関連 Git HUB レポジトリ
+	XBee（本書で紹介するRaspberry Pi用 XBeeライブラリ）
+		git clone -b raspi https://github.com/bokunimowakaru/xbeeCoord.git
+	ESP（超特急Web接続ESP！マイコン・プログラム全集用）
+		git clone https://github.com/bokunimowakaru/esp.git
+	IoT
+		git clone https://github.com/bokunimowakaru/iot.git
+
 ■ 関連リンク
 
 ボクにもわかるRaspberry Pi
