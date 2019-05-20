@@ -12,9 +12,9 @@
 #
 # https://secure.sakura.ad.jp/iot/
 #
-# 「Talken」が発行されるので、下記の「TALKEN=」の部分に記述してください。
+# 「token」が発行されるので、下記の「token=」の部分に記述してください。
 #
-TALKEN="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"       # トークン
+token="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"       # トークン
 
 DEVICE="sakra_1"                                    # 識別名
 INTERVAL=10                                         # 確認間隔
@@ -25,7 +25,7 @@ while true; do
     -H "Sec-WebSocket-Key: $(head -c 16 /dev/urandom | base64)" \
     -H "Connection: Upgrade" \
     -H "Upgrade: websocket" \
-    https://api.sakura.io/ws/v1/${TALKEN}`
+    https://api.sakura.io/ws/v1/${token}`
     # 参考文献 http://hateda.hatenadiary.jp/entry/debugging-websocket-using-curl
     if [ -n "$DATA" ]; then
         DATE=`echo $DATA\
