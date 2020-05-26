@@ -96,6 +96,7 @@ IPアドレスを確認する
 		-A INPUT -p tcp --dport 1880 -j ACCEPT
 		# ntp用
 		-A INPUT -p udp --dport 123 -j ACCEPT
+		-A INPUT -p udp --sport 123 -j ACCEPT
 		COMMIT
 
 	sudo iptables-apply /etc/iptables/rules.v4
