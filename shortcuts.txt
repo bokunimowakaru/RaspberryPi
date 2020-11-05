@@ -105,9 +105,6 @@ Raspbianのアップデート
 	sudo apt-get update
 	sudo apt-get upgrade
 	sudo apt-get dist-upgrade
-	sudo rpi-update
-		command not found が表示される場合：
-		sudo apt-get install rpi-update
 	sudo reboot
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方
