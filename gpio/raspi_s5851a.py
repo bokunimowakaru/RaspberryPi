@@ -16,6 +16,8 @@ def word2uint(d1,d2):
     i = d1
     i <<= 8
     i += d2
+    if i >= 32768:
+        i -= 65536
     return i
 
 i2c = smbus.SMBus(1)
