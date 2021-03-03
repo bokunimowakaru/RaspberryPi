@@ -12,7 +12,7 @@ s5851 = 0x48
 import smbus
 from time import sleep
 
-def word2uint(d1,d2):
+def word2int(d1,d2):
     i = d1
     i <<= 8
     i += d2
@@ -24,6 +24,6 @@ i2c = smbus.SMBus(1)
 while i2c:
     data=i2c.read_i2c_block_data(s5851,0x00,2)
     if len(data) >= 2:
-        temp = float(word2uint(data[0],data[1])) / 256.
+        temp = float(word2int(data[0],data[1])) / 256.
         print("Temp.= %.2f ℃" % (temp))
     sleep(1)
