@@ -7,7 +7,7 @@
 #                                               Copyright (c) 2021 Wataru KUNINO
 ################################################################################
 
-sht31 = 0x45
+sht31 = 0x45                                         # M5Stack製は sht31 = 0x44
 
 import smbus
 from time import sleep                               # 時間取得を組み込む
@@ -20,7 +20,7 @@ def word2uint(d1,d2):
 
 i2c = smbus.SMBus(1)
 while i2c:
-    i2c.write_byte_data(sht31,0x2C,0x06)
+    i2c.write_byte_data(sht31,0x24,0x00)
     sleep(0.018)
     data = i2c.read_i2c_block_data(sht31,0x00,6)
     if len(data) >= 5:
