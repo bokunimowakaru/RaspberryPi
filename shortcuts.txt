@@ -96,6 +96,7 @@ IPアドレスを確認する
 		-A INPUT -p tcp --dport 1880 -j ACCEPT
 		# ntp用
 		-A INPUT -p udp --dport 123 -j ACCEPT
+		-A INPUT -p udp --sport 123 -j ACCEPT
 		COMMIT
 
 	sudo iptables-apply /etc/iptables/rules.v4
@@ -104,9 +105,6 @@ Raspbianのアップデート
 	sudo apt-get update
 	sudo apt-get upgrade
 	sudo apt-get dist-upgrade
-	sudo rpi-update
-		command not found が表示される場合：
-		sudo apt-get install rpi-update
 	sudo reboot
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方

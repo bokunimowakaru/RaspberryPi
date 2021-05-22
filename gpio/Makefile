@@ -1,4 +1,4 @@
-CC = gcc -Wall -O1
+CC = gcc
 PROGS =	raspi_gpi \
 		raspi_gpo \
 		raspi_ir_in \

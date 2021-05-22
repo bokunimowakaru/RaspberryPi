@@ -23,16 +23,16 @@ SIIセミコンダクタ社 S-5851A
 typedef unsigned char byte; 
 byte i2c_address=0x48;				// S-5851A の I2C アドレス 
 
-uint16_t _getReg(byte data){
+int16_t _getReg(byte data){
 	byte rx[2];
     i2c_write(i2c_address,&data,1);	// 書込みの実行
     delay(10);						// 6.5ms以上
     i2c_read(i2c_address,rx,2);		// 読み出し
-    return (((uint16_t)rx[0])<<8)|((uint16_t)rx[1]);
+    return (int16_t)(((uint16_t)rx[0])<<8)|((uint16_t)rx[1]);
 }
 
 float getTemp(){
-    uint16_t ret;
+    int16_t ret;
     ret = _getReg(0x00);			// 温度レジスタ 00
     return (float)ret / 256.;
 }
