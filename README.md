@@ -65,7 +65,7 @@
 
     使用例(BME280)：
 
-        $ raspi_bme280          デフォルトせって
+        $ raspi_bme280          デフォルト設定での起動方法
         $ raspi_bme280 76       SDOピンをGNDに接続した場合
         $ raspi_bme280 77       SDOピンをVDDIOに接続した場合
 
