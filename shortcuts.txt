@@ -18,7 +18,7 @@ Raspberry PiのOSのバージョンによって、異なる場合があります
 
 ■ 第１章	Raspberry Piの使い方
 
-Raspberry Pi OS のインストール方法(最新)
+Raspberry Pi OS のインストール方法(古い)
 	https://bokunimo.net/raspi/install.pdf
 
 SDフォーマッター
