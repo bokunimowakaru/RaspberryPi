@@ -6,6 +6,9 @@
 #
 # /etc/rc.localへ下記を追加すると自動的に起動する
 #       /home/pi/RaspberryPi/gpio/apple_pi.sh &
+#
+# 実行権限の付与が必要
+# chmod u+x /etc/rc.local
 
 while true; do
 /home/pi/RaspberryPi/gpio/raspi_lcd -i `hostname -I|cut -d" " -f1`
@@ -19,11 +22,11 @@ sleep 2
 /home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 sleep 2
 IN=`/home/pi/RaspberryPi/gpio/raspi_gpi 27 PUP`
-if [ $IN = "0" ]; then
+if [ "$IN" = "0" ]; then
 	/home/pi/RaspberryPi/gpio/raspi_lcd -i "shuting down..."
 	sleep 2
 	IN=`/home/pi/RaspberryPi/gpio/raspi_gpi 27 PUP`
-	if [ $IN = "0" ]; then
+	if [ "$IN" = "0" ]; then
 		/home/pi/RaspberryPi/gpio/raspi_lcd -i "Bye."
 		sudo shutdown -h now
 		exit 0
