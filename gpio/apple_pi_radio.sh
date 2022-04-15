@@ -60,6 +60,7 @@ elif [ "$IN5" = "0" ]; then
 	ffplay -nodisp https://radio-stream.nhk.jp/hls/live/2023509/nhkradirubkfm/master.m3u8 &> /dev/null &
 elif [ "$IN6" = "0" ]; then  # ボタン6 ラジオの停止  長押しでシャットダウン
 	RADIO=0
+	kill `pidof ffplay` &> /dev/null
 	# LCDに表示                             0123456701234567
 	/home/pi/RaspberryPi/gpio/raspi_lcd -i "6:STOP  Long=Off"
 	sleep 1
