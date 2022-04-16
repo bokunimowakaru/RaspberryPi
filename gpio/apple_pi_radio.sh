@@ -12,6 +12,15 @@
 #
 # ネットラジオ検索
 # https://directory.shoutcast.com/
+#
+# 使用したチャンネル
+# https://www.181.fm/index.php?p=mp3links
+#	http://listen.livestreamingservice.com/181-power_64k.aac
+#	http://listen.livestreamingservice.com/181-powerexplicit_64k.aac
+#	http://listen.livestreamingservice.com/181-uktop40_64k.aac
+#	http://listen.livestreamingservice.com/181-beat_64k.aac
+#
+#
 
 export SDL_AUDIODRIVER=alsa
 export AUDIODEV=hw:1,0		# Apple PiのDACに合わせる
@@ -22,11 +31,12 @@ TARGET_SEC=$((SECONDS))
 
 #    0123456701234567
 urls=(
-	"1:181.fmPow.Exp. http://listen.livestreamingservice.com/181-powerexplicit_64k.aac"
+	"1:181.fmPower181 http://listen.livestreamingservice.com/181-power_64k.aac"
 	"2:181.fmUK_Top40 http://listen.livestreamingservice.com/181-uktop40_64k.aac"
 	"3:181.fmThe_Beat http://listen.livestreamingservice.com/181-beat_64k.aac"
 	"4:1.FM__AmTrance http://185.33.21.111:80/atr_128"
 	"5:NHK-FMOsaka https://radio-stream.nhk.jp/hls/live/2023509/nhkradirubkfm/master.m3u8"
+	"6:181.fmPow[Exp] http://listen.livestreamingservice.com/181-powerexplicit_64k.aac"
 )
 urln=${#urls[*]}
 
@@ -55,8 +65,12 @@ while true; do
 	IN5=`/home/pi/RaspberryPi/gpio/raspi_gpi 26 PUP`
 	IN6=`/home/pi/RaspberryPi/gpio/raspi_gpi 27 PUP`
 
-	if [ "$IN1" = "0" ]; then
-		RADIO=1
+	if [ "$IN1" = "0" ]; then  # 181.FM Power 181 (Top 40) の [Clean] と [Explicit] の切り替え
+		if [ $RADIO -eq 1 ]; then
+			RADIO=6
+		else
+			RADIO=1
+		fi
 		radio $RADIO
 	elif [ "$IN2" = "0" ]; then
 		RADIO=2
