@@ -60,19 +60,19 @@ while true; do
 		else
 			RADIO=1
 		fi
-		radio RADIO
+		radio $RADIO
 	elif [ "$IN2" = "0" ]; then
 		RADIO=2
-		radio RADIO
+		radio $RADIO
 	elif [ "$IN3" = "0" ]; then
 		RADIO=3
-		radio RADIO
+		radio $RADIO
 	elif [ "$IN4" = "0" ]; then
 		RADIO=4
-		radio RADIO
+		radio $RADIO
 	elif [ "$IN5" = "0" ]; then
 		RADIO=5
-		radio RADIO
+		radio $RADIO
 	elif [ "$IN6" = "0" ]; then  # ボタン6 ラジオの停止  長押しでシャットダウン
 		if [ $RADIO -ne 0 ]; then
 			RADIO=0
