@@ -23,9 +23,9 @@ TARGET_SEC=$((SECONDS))
 #    0123456701234567
 urls=(
 	"1:181.fmPow.Exp. http://listen.livestreamingservice.com/181-powerexplicit_64k.aac"
-	"2:181.fmUK\ Top40 http://listen.livestreamingservice.com/181-uktop40_64k.aac"
-	"3:181.fmThe\ Beat http://listen.livestreamingservice.com/181-beat_64k.aac"
-	"4:1.FM\ \ AmTrance http://185.33.21.111:80/atr_128"
+	"2:181.fmUK_Top40 http://listen.livestreamingservice.com/181-uktop40_64k.aac"
+	"3:181.fmThe_Beat http://listen.livestreamingservice.com/181-beat_64k.aac"
+	"4:1.FM__AmTrance http://185.33.21.111:80/atr_128"
 	"5:NHK-FMOsaka https://radio-stream.nhk.jp/hls/live/2023509/nhkradirubkfm/master.m3u8"
 )
 urln=${#urls[*]}
@@ -33,7 +33,7 @@ urln=${#urls[*]}
 radio () {
 	if [ $1 -ge 1 ] && [ $1 -le $urln ]; then
 		ch=(${urls[$(($1 - 1))]})
-		/home/pi/RaspberryPi/gpio/raspi_lcd -i ${ch[0]}
+		/home/pi/RaspberryPi/gpio/raspi_lcd -i "`echo ${ch[0]}| tr '_' ' '`"
 		kill `pidof ffplay` &> /dev/null
 		/home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
 		ffplay -nodisp ${ch[1]} &> /dev/null &

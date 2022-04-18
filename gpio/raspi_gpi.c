@@ -246,8 +246,8 @@ int main(int argc,char **argv){
     }
     if( pseudoPUpDown >= 0){
         fprintf(stderr,"Pseudo Pull Up / Down mode (%d)\n",pseudoPUpDown);
-        fprintf(stderr,"WiringPiをインストールしてください。\n");
-        fprintf(stderr,"git clone git://git.drogon.net/wiringPi\n");
+        // fprintf(stderr,"WiringPiをインストールしてください。\n");
+        // fprintf(stderr,"git clone git://git.drogon.net/wiringPi\n");
     }
     
     /* ポート入力処理 */
