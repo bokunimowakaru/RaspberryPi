@@ -33,7 +33,9 @@ urln=${#urls[*]}
 radio () {
 	if [ $1 -ge 1 ] && [ $1 -le $urln ]; then
 		ch=(${urls[$(($1 - 1))]})
+		/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 		/home/pi/RaspberryPi/gpio/raspi_lcd -i "`echo ${ch[0]}| tr '_' ' '`"
+		/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 		kill `pidof ffplay` &> /dev/null
 		/home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
 		ffplay -nodisp ${ch[1]} &> /dev/null &
@@ -43,6 +45,8 @@ radio () {
 	sleep 1
 }
 
+/home/pi/RaspberryPi/gpio/raspi_gpo 5 0 >/dev/null
+/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 while true; do
 	IN1=`/home/pi/RaspberryPi/gpio/raspi_gpi 22 PUP`
 	IN2=`/home/pi/RaspberryPi/gpio/raspi_gpi 23 PUP`
@@ -53,9 +57,9 @@ while true; do
 
 	if [ "$IN1" = "0" ]; then
 		if [ $RADIO -ge 1 ]; then
-			RADIO=$((RADIO))
-			if [  $RADIO -gt urln ]; then
-				RADIO=0
+			RADIO=$((RADIO + 1))
+			if [ $RADIO -gt urln ]; then
+				RADIO=1
 			fi
 		else
 			RADIO=1
@@ -79,38 +83,48 @@ while true; do
 			kill `pidof ffplay` &> /dev/null
 			/home/pi/RaspberryPi/gpio/raspi_gpo 5 0 >/dev/null
 			# LCDに表示                             0123456701234567
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 			/home/pi/RaspberryPi/gpio/raspi_lcd -i "6:STOP  Hold=Off"
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			sleep 1
 		else
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 			/home/pi/RaspberryPi/gpio/raspi_lcd -i "shuting down..."
 			sleep 3
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			IN6=`/home/pi/RaspberryPi/gpio/raspi_gpi 27 PUP`
 			if [ "$IN6" = "0" ]; then
 				/home/pi/RaspberryPi/gpio/raspi_lcd -i "Bye."
 				sudo shutdown -h now
 				exit 0
 			fi
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 			/home/pi/RaspberryPi/gpio/raspi_lcd -i "Canceled"
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 		fi
 	fi
 
 	if [ $RADIO -eq 0 ] && [ $SECONDS -gt $TARGET_SEC ]; then
 		TARGET_SEC=$((SECONDS + 3))
 		if [ $LCD -eq 0 ]; then
-			/home/pi/RaspberryPi/gpio/raspi_lcd -i "Apple PinetRadio"
 			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
+			/home/pi/RaspberryPi/gpio/raspi_lcd -i "Apple PinetRadio"
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			LCD=$(( LCD + 1 ))
 		elif [ $LCD -eq 1 ]; then
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 			/home/pi/RaspberryPi/gpio/raspi_lcd -i `hostname -I|cut -d" " -f1`
 			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			LCD=$(( LCD + 1 ))
 			BME=`/home/pi/RaspberryPi/gpio/raspi_bme280`;export BME &
 		elif [ $LCD -eq 2 ]; then
-			/home/pi/RaspberryPi/gpio/raspi_lcd -i "$BME"
 			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
+			/home/pi/RaspberryPi/gpio/raspi_lcd -i "$BME"
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			LCD=$(( LCD + 1 ))
 		elif [ $LCD -eq 3 ]; then
 			DATE=`date "+%y/%m/%d%R:%S"`
+			/home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
 			/home/pi/RaspberryPi/gpio/raspi_lcd -i $DATE
 			/home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
 			LCD=0
