@@ -56,14 +56,7 @@ while true; do
 	IN6=`/home/pi/RaspberryPi/gpio/raspi_gpi 27 PUP`
 
 	if [ "$IN1" = "0" ]; then
-		if [ $RADIO -ge 1 ]; then
-			RADIO=$((RADIO + 1))
-			if [ $RADIO -gt urln ]; then
-				RADIO=1
-			fi
-		else
-			RADIO=1
-		fi
+		RADIO=1
 		radio $RADIO
 	elif [ "$IN2" = "0" ]; then
 		RADIO=2
