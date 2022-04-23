@@ -13,14 +13,17 @@
 # ネットラジオ検索
 # https://directory.shoutcast.com/
 #
+# NHK
+# https://www.nhk.or.jp/radio/config/config_web.xml
+#
 # 使用したチャンネル
 # https://www.181.fm/index.php?p=mp3links
 #	http://listen.livestreamingservice.com/181-power_64k.aac
 #	http://listen.livestreamingservice.com/181-powerexplicit_64k.aac
 #	http://listen.livestreamingservice.com/181-uktop40_64k.aac
 #	http://listen.livestreamingservice.com/181-beat_64k.aac
-#
-#
+# https://www.1.fm/stations
+#	http://185.33.21.111:80/atr_128
 
 export SDL_AUDIODRIVER=alsa
 export AUDIODEV=hw:1,0		# Apple PiのDACに合わせる
@@ -35,8 +38,12 @@ urls=(
 	"2:181.fmUK_Top40 http://listen.livestreamingservice.com/181-uktop40_64k.aac"
 	"3:181.fmThe_Beat http://listen.livestreamingservice.com/181-beat_64k.aac"
 	"4:1.FM__AmTrance http://185.33.21.111:80/atr_128"
-	"5:NHK-FMOsaka https://radio-stream.nhk.jp/hls/live/2023509/nhkradirubkfm/master.m3u8"
+	"5:NHK-FM(Osaka)_ https://radio-stream.nhk.jp/hls/live/2023509/nhkradirubkfm/master.m3u8"
 	"6:181.fmPow[Exp] http://listen.livestreamingservice.com/181-powerexplicit_64k.aac"
+	"7:181.fmEnergy93 http://listen.livestreamingservice.com/181-energy93_64k.aac"
+	"8:181.fmThe_Box_ http://listen.livestreamingservice.com/181-thebox_64k.aac"
+	"9:181.fmTranceJz http://listen.livestreamingservice.com/181-trancejazz_64k.aac"
+	"0:NHK-N1(Osaka)_ https://radio-stream.nhk.jp/hls/live/2023508/nhkradirubkr1/master.m3u8"
 )
 urln=${#urls[*]}
 
@@ -73,16 +80,32 @@ while true; do
 		fi
 		radio $RADIO
 	elif [ "$IN2" = "0" ]; then
-		RADIO=2
+		if [ $RADIO -eq 2 ]; then
+			RADIO=7
+		else
+			RADIO=2
+		fi
 		radio $RADIO
 	elif [ "$IN3" = "0" ]; then
-		RADIO=3
+		if [ $RADIO -eq 3 ]; then
+			RADIO=8
+		else
+			RADIO=3
+		fi
 		radio $RADIO
 	elif [ "$IN4" = "0" ]; then
-		RADIO=4
+		if [ $RADIO -eq 4 ]; then
+			RADIO=9
+		else
+			RADIO=4
+		fi
 		radio $RADIO
 	elif [ "$IN5" = "0" ]; then
-		RADIO=5
+		if [ $RADIO -eq 5 ]; then
+			RADIO=10
+		else
+			RADIO=5
+		fi
 		radio $RADIO
 	elif [ "$IN6" = "0" ]; then  # ボタン6 ラジオの停止  長押しでシャットダウン
 		if [ $RADIO -ne 0 ]; then
