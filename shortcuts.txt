@@ -4,38 +4,59 @@
 
 ■ お知らせ
 Raspberry PiのOSのバージョンによって、異なる場合があります。
+全動作を確認したときOSは Raspbian 8 Jessie です。
+主要動作は Raspberry Pi OS 10 Buster まで確認しています。
+以降も情報やソフトウェアの更新を行っていますが、対応できていない場合があります。
+動作しないソフトに関して、どうしても動かしたい場合は、Jessieを導入して下さい。
+正し、Jessieを使う場合は、インターネットに接続した状態では使用しないでください。
+その他、更新内容についてはgit logにて確認して下さい。
 
 バージョンの確認方法
 	cat /etc/debian_version
 
 バージョン,コード名
-	6	Squeeze	初期のRaspberry Pi用OS
-	7	Wheezy	2015年ごろまで使われていたOS
-	8	Jessie	動作確認済みOS (但しleafpad ⇒ mousepad 置換済み)
-	9	Sretch	主要プログラムの動作を確認済み
-	10	Buster	現行OS・主要プログラムの動作を確認済み
-	11	Bullseye	次期OS
+	 6 Squeeze	初期のRaspberry Pi用OS
+	 7 Wheezy	2015年ごろまで使われていたOS
+	 8 Jessie	動作確認済みOS (但しleafpad ⇒ mousepad 置換済み)
+	 9 Sretch	主要プログラムの動作を確認済み
+	10 Buster	主要プログラムの動作を確認済み
+	11 Bullseye	現行OS・動作未確認
+	12 Bookworm	次期OS(未リリース)
+	13 Trixie	次次期OS
+
+■ 本書に含まれない情報
+・Raspberry Pi用のOS Raspbianは、Raspberry Pi OSに改名されました。
+・NOOBSを使わずにインストールできるようになりました(後述)。
+・OSの通常版の種類が2つに、またそれぞれに64bit版が加わりました。
+	Lite版	テキスト文字だけで利用するCLI(コマンドラインインタフェース)
+	通常版	GUI(グラフィカルユーザインタフェース)が利用可能
+	Full版	オフィスソフト LibreOffice などが含まれる完全版
+	32-bit	Raspberry Pi 1,2,Zero, Zero W用(3以降でも動作する)
+	64-bit	Raspberry Pi 3以降、Zero 2以降用(CPUに最適化されている)
+・Lite版では git コマンドのインストールが必要です。
+	sudo apt install git
 
 ■ 第１章	Raspberry Piの使い方
 
-Raspberry Pi OS のインストール方法(古い)
+Raspberry Pi OS（旧名 Raspbian） のインストール方法(Bullseye対応)
+※NOOBSを使ったインストールよりも簡単な方法です。
 	https://bokunimo.net/raspi/install.pdf
 
-SDフォーマッター
+SDフォーマッター(上記を使えば不要)
 	https://www.sdcard.org/downloads/formatter/
 
-NOOBS
+NOOBS(上記を使えば不要)
 	http://downloads.raspberrypi.org/NOOBS_lite/images/
 
-フォントのインストール(文字化けする場合のみ)
-	sudo apt-get install ttf-kochi-gothic	# 最新版では不要
-	sudo apt-get install fonts-takao	# 最新版では不要
+フォントのインストール(現行版では不要)
+	sudo apt-get install ttf-kochi-gothic
+	sudo apt-get install fonts-takao
 
 Raspbianのシャットダウン
 	sudo shutdown -h now
 
-オフィスソフト LibreOffice のインストール
-	sudo apt-get install libreoffice	# 最新版では不要
+オフィスソフト LibreOffice のインストール(Full版では不要)
+	sudo apt install libreoffice
 
 IPアドレスを確認する
 	ifconfig
@@ -62,16 +83,16 @@ IPアドレスを確認する
 	https://www.realvnc.com/ 
 
 ファイル共有サーバ Samba のインストール
-	sudo apt-get install samba
+	sudo apt install samba
 	sudo mousepad /etc/samba/smb.conf &
 		[homes]
 			read only = no
 			create mask = 0644
 	sudo pdbedit -a pi
-	sudo /etc/init.d/samba restart	# 最新版では不要
+	sudo /etc/init.d/samba restart	# 再起動；最新版では不要
 
 ファイヤーウォール
-	sudo apt-get install iptables-persistent
+	sudo apt install iptables-persistent
 	sudo mousepad /etc/iptables/rules.v4
 		*filter
 		:INPUT   DROP   [0:0]
@@ -106,16 +127,15 @@ IPアドレスを確認する
 
 	sudo iptables-apply /etc/iptables/rules.v4
 
-Raspbianのアップデート
-	sudo apt-get update
-	sudo apt-get upgrade
-	sudo apt-get dist-upgrade
-	sudo reboot
+Raspberry Pi OSのアップデート
+	sudo apt update			# リストのみ更新
+	sudo apt upgrade		# アップデート実行
+	sudo reboot				# システムの再起動
 
 ■ 第２章	Linux用コマンドラインシェル：bashの使い方
 
 Text Editorのインストール(mousepadが起動しないときのみ)
-	sudo apt-get install mousepad
+	sudo apt install mousepad
 
 システムファイルの編集
 	sudo mousepad システム用ファイル名 &
@@ -127,7 +147,7 @@ Text Editorのインストール(mousepadが起動しないときのみ)
 	ps aux
 	ps aux |tail
 
-プロセスIDの表示
+プロセスIDの表示(例)
 	pidof mousepad
 
 ■ 第３章	Linux上でC言語プログラミング演習
@@ -211,7 +231,7 @@ Windows用のパケットモニタソフト「SocketDebuggerFree」
 	https://www.udom.co.jp/sdg/
 
 Raspberry Pi用のパケットキャプチャソフト「WireShark 」
-	sudo apt-get install wireshark
+	sudo apt install wireshark
 
 Wi-Fiアクセスポイントの設定
 	sudo mousepad /etc/wpa_supplicant/wpa_supplicant.conf &
@@ -236,11 +256,11 @@ Wi-Fi用DHCPクライアントの設定(最新版では不要)
 
 ■ Bluetooth 通信
 
-Bluetooth プロトコルスタックのインストール
-	sudo apt-get install bluez	# 最新版では不要
+Bluetooth プロトコルスタックのインストール(現行版では不要)
+	sudo apt-get install bluez	# 現行版では不要
 
 シリアル端末cuのインストール
-	sudo apt-get install cu
+	sudo apt install cu
 
 Bluetooth RFCOMM接続
 	hcitool scan	# 最新版では不要
@@ -252,8 +272,8 @@ Bluetooth RFCOMM接続
 ■ Bluetooth Low Energy 通信
 
 Bluetooth プロトコルスタックのインストール
-	sudo apt-get install bluez	# 最新版では不要
-	sudo apt-get install bluez-hcidump
+	sudo apt install bluez	# 最新版では不要
+	sudo apt install bluez-hcidump
 
 BLE受信
 	sudo hcitool lescan --pa --du
@@ -303,7 +323,7 @@ BLE GATTコマンド(WRITE)送信
 	curl -u username:password -T filename ftp.xxx.ne.jp/dir/
 
 HTTPサーバ
-	sudo apt-get install apache2
+	sudo apt install apache2
 	sudo /etc/init.d/apache2 start
 	sudo mousepad /var/www/html/index.html
 	sudo chown pi.pi /var/www/html/index.html
