@@ -89,7 +89,8 @@ IPアドレスを確認する
 			read only = no
 			create mask = 0644
 	sudo pdbedit -a pi
-	sudo /etc/init.d/samba restart	# 再起動；最新版では不要
+	sudo /etc/init.d/samba restart #再起動；最新版では不要
+	# 最新版(sudo systemctl restart smbd.service)
 
 ファイヤーウォール
 	sudo apt install iptables-persistent
