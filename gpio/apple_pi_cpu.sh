@@ -90,7 +90,7 @@ while true; do
 
     # UPTIME CPU負荷
     echo `date4log` "[Loop] CPU Load 負荷表示"
-    cpu_f=`uptime|cut -d',' -f3|tr -d ' '|cut -d':' -f2`
+    cpu_f=`uptime|rev|cut -d',' -f3|tr -d ' '|rev|cut -d':' -f2`
     cpu100=`echo "${cpu_f} * 100 / ${CPU_CORES}"|bc`
     cpu_i=`printf "%.0f" $cpu100`
     echo `date4log` "[Value] CPU =" ${cpu_i}
