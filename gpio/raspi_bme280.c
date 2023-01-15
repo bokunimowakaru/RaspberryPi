@@ -179,7 +179,7 @@ float bme280_getTemp(){
 	in |= _bme280_getReg(0xFB); 				// temp_lsb[7:0]
 	in <<= 4;
 	in |= _bme280_getReg(0xFC); 				// temp_xlsb[3:0]
-//	  printf("getTemp  %08X %d\n",in,in);
+//	printf("getTemp  %08X %d\n",in,in);
 	return ((float)BME280_compensate_T_int32(in))/100.;
 }
 
@@ -231,9 +231,9 @@ int bme280_init(){
 		return 11;
 	}
 	
-	reg= 0xF2;				   	// trl_hum
+	reg= 0xF2;				   	// ctrl_hum 
 	data=0b00000001;
-	//			|_|___________________ osrs_h[2:0]
+	//			|_|___________________ osrs_h[2:0] oversampling_Humid =1
 	if(_bme280_setByte(reg,data)){		// 書込みの実行
 		#ifdef ARDUINO
 			Serial.println("ERROR(12): i2c writing trl_hum reg");
@@ -245,9 +245,10 @@ int bme280_init(){
 	
 	reg= 0xF4;				   	// ctrl_meas
 	data=0b00100111;
-	//	   | || |||___________________ mode[1:0]
-	//	   | ||_|_____________________ osrs_p[2:0]
-	//	   |_|________________________ osrs_t[2:0]
+	//	   | || |||___________________ mode[1:0]   Normal mode = 11※
+	//	   | || |                      ※mode01で良い。11で検証済なので変更保留
+	//	   | ||_|_____________________ osrs_p[2:0] oversampling_Press = 1
+	//	   |_|________________________ osrs_t[2:0] oversampling_Temp =1
 	if(_bme280_setByte(reg,data)){		// 書込みの実行
 		#ifdef ARDUINO
 			Serial.println("ERROR(13): i2c writing ctrl_meas reg");
@@ -255,8 +256,11 @@ int bme280_init(){
 			fprintf(stderr,"ERROR(13): i2c writing ctrl_meas reg\n");
 		#endif
 		return 13;
-	}	 
+	}
+	
 	in=_bme280_getReg(0xD0);
+	// BMP280 0x56 / 0x57 (samples) / 0x58 (mass production)
+	// BME280 0x60 湿度測定可能
 	if(in != 0x58 && in != 0x60){
 		#ifdef ARDUINO
 			Serial.print("ERROR(21):  chip_id = 0x");
@@ -276,7 +280,7 @@ int bme280_init(){
 				printf("getReg   %02X\n",in);
 			#endif
 		#endif
-		if((in&0x04)==0) break;
+		if((in&0x09)==0) break;
 		delay(20);
 	}
 	if(i==50){
