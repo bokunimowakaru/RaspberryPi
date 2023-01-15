@@ -65,7 +65,8 @@ const byte font_lv[64]={
 };
 
 int main(int argc,char **argv){
-	int num=1, i, y, bar, i22, peak, dispScale = 4;
+	int num=1, i, y, bar, i22, dispScale = 4;
+	// int peak;
 	char s[97]; s[0]='\0';
 	while(argc >=num+1 && argv[num][0]=='-'){
 		if(argv[num][1]=='i') ERROR_CHECK=0;
@@ -189,7 +190,7 @@ int main(int argc,char **argv){
 				}
 				// printf("s[%d]=%d\n",i,s[i]);
 			}
-			if( !i2c_lcd_out(y, s) ){
+			if( !i2c_lcd_out(y, (byte*)s) ){
 				fprintf(stderr,"I2C ERROR in LCD_OUT row=2\n");
 				if( ERROR_CHECK ) return 4;
 			}

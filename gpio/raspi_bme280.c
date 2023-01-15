@@ -11,6 +11,7 @@ BMP280 温度 気圧
 I2C接続のセンサから測定値を取得する
 
 参考文献：Bosch BME280データシート・データシート上のサンプルソースコード
+BST-BME280-DS001-11 | Revision 1.2 | October 2015 Bosch Sensortec
 
                                         Copyright (c) 2016-2017 Wataru KUNINO
                                         https://bokunimo.net/raspi/
@@ -33,6 +34,7 @@ I2C接続のセンサから測定値を取得する
 #endif
 typedef uint8_t byte; 
 uint8_t I2C_bme280=0x76;
+uint8_t Chip_id=0x00;
 
 // #define DEBUG
 
@@ -186,6 +188,7 @@ float bme280_getTemp(){
 
 float bme280_getHum(){
 	int32_t in;
+	if( Chip_id != 0x60 ) return 0.;
 	in = _bme280_getReg(0xFD);			  		// hum_msb[7:0]
 	in <<= 8;
 	in |= _bme280_getReg(0xFE); 				// hum_lsb[7:0]
@@ -258,15 +261,15 @@ int bme280_init(){
 		return 13;
 	}
 	
-	in=_bme280_getReg(0xD0);
+	Chip_id=_bme280_getReg(0xD0);
 	// BMP280 0x56 / 0x57 (samples) / 0x58 (mass production)
 	// BME280 0x60 湿度測定可能
-	if(in != 0x58 && in != 0x60){
+	if(Chip_id != 0x58 && Chip_id != 0x60){
 		#ifdef ARDUINO
 			Serial.print("ERROR(21):  chip_id = 0x");
-			Serial.println(in,HEX);
+			Serial.println(Chip_id,HEX);
 		#else
-			fprintf(stderr,"ERROR(21):  chip_id (%02X)\n",in);
+			fprintf(stderr,"ERROR(21):  chip_id (%02X)\n",Chip_id);
 		#endif
 		return 21;
 	}
@@ -309,10 +312,11 @@ int bme280_stop(){
 void bme280_print(float temp, float hum, float press){
 	#ifdef ARDUINO
 		Serial.print("Temp ="); Serial.println(temp,2);
-		Serial.print("Humi ="); Serial.println(hum,2);
+		if( Chip_id == 0x60 ) Serial.print("Humi ="); Serial.println(hum,2);
 		Serial.print("Press="); Serial.println(press,2);
 	#else
 		printf("%3.2f ",temp);
+	//	if( Chip_id == 0x60 ) printf("%3.2f ",hum);
 		printf("%3.2f ",hum);
 		printf("%4.2f\n",press);
 	#endif
@@ -320,7 +324,9 @@ void bme280_print(float temp, float hum, float press){
 
 #ifndef ARDUINO
 int main(int argc,char **argv){
-	if( argc == 2 ) I2C_bme280=(byte)strtol(argv[1],NULL,16);
+	if( argc == 2 ){
+		I2C_bme280=(byte)strtol(argv[1],NULL,16);
+	}
 	if( I2C_bme280>=0x80 ) I2C_bme280>>=1;
 	if( argc < 1 || argc > 2 ){
 		fprintf(stderr,"usage: %s [I2C_bme280]\n",argv[0]);

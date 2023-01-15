@@ -987,7 +987,8 @@ void i2c_lcd_init_xy_sdascl(byte x,byte y,byte sda,byte scl){
 byte i2c_lcd_set_fonts(const byte *s, int len){
 // 戻り値：０の時はエラー
 	byte ret=0;
-	int i,j;
+	int i;
+	// int j;
 	byte data[9];
 	
 	if( len > 64) return 0;

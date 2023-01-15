@@ -6,8 +6,8 @@ PROGS =	raspi_gpi \
 		raspi_max6675
 
 all: $(PROGS)
-		gcc -Wall -O1 -c ../libs/soft_i2c.c -o soft_i2c.o
-		gcc -Wall -O1 -c ../libs/uart.c -o uart.o
+		gcc -Wall -Wno-format-truncation -O1 -c ../libs/soft_i2c.c -o soft_i2c.o
+		gcc -Wall -Wno-format-truncation -O1 -c ../libs/uart.c -o uart.o
 		gcc -Wall -O1 raspi_i2cdetect.c soft_i2c.o -o raspi_i2cdetect
 		gcc -Wall -O1 raspi_lcd.c soft_i2c.o -o raspi_lcd
 		gcc -Wall -O1 raspi_s5851a.c soft_i2c.o -o raspi_s5851a
