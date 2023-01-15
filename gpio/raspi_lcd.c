@@ -1,5 +1,5 @@
 /*******************************************************************************
-Raspberry Pi用 I2C液晶 表示プログラム  raspi_lcd
+Raspberry Pi用 I2C液晶 表示プログラム  raspi_lcd for ST7032i
 
 本ソースリストおよびソフトウェアは、ライセンスフリーです。(詳細は別記)
 利用、編集、再配布等が自由に行えますが、著作権表示の改変は禁止します。
@@ -26,27 +26,53 @@ https://github.com/bokunimowakaru/RaspberryPi/blob/master/gpio/raspi_lcd.c
 最新ファイル：
 https://bokunimo.net/git/raspi_lcd/blob/master/raspi_lcd.c
 ###################### 【要注意】"raspi_i2c.h"のパスを要確認 ###################
+********************************************************************************
+参考文献
+・秋月電子通商 I2C接続小型8文字×2行液晶 AQM0802A-RN-GBW
+　https://akizukidenshi.com/download/ds/xiamen/AQM0802.pdf
+・秋月電子通商 AE-AQM1602A(KIT)
+　https://akizukidenshi.com/download/ds/xiamen/AQM1602_rev2.pdf
+・Sitronix ST7032 Dot Matrix LCD Controller/Driver V1.4 2008/08/18 (Datasheet) 
+　https://akizukidenshi.com/download/ds/sitronix/st7032.pdf
+・Sitronix ST7032 Dot Matrix LCD Controller/Driver V1.3 2007/11/09 (Datasheet) 
+　https://akizukidenshi.com/download/ds/sitronix/ST7032-0Dv1_3.pdf
 *******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "raspi_i2c.h"  // ################ 【要注意】パス確認 ############
-#include "../libs/soft_i2c.h" // #############       元ファイル版 ############
+// #include "raspi_i2c.h"  // ################### 【要注意】パス確認 ############
+#include "../libs/soft_i2c.h" // ################       元ファイル版 ############
 
 typedef unsigned char byte;
 extern int ERROR_CHECK;				// オプション -i
+extern int SLOW_MODE;				// オプション -s
 int LOOP=0;							// オプション -f
 int PORT=-1;						// オプション -rPORT
 int WIDTH=8;						// オプション -wWIDTH
 int ROW=0;							// オプション -yROW
 int NOINIT=0;						// オプション -n
+int BAR=0;							// オプション -b
+
+const byte font_lv[64]={
+	0x00,0x10,0x00,0x10,0x00,0x10,0x00,0x10,
+	0x18,0x18,0x18,0x18,0x18,0x18,0x00,0x10,
+	0x1B,0x1B,0x1B,0x1B,0x1B,0x1B,0x00,0x10,
+	0x03,0x13,0x03,0x13,0x03,0x13,0x00,0x10,
+	0x10,0x10,0x00,0x10,0x10,0x00,0x10,0x10,
+	0x18,0x18,0x18,0x18,0x18,0x18,0x10,0x10,
+	0x1B,0x1B,0x1B,0x1B,0x1B,0x1B,0x10,0x10,
+	0x13,0x13,0x03,0x13,0x13,0x03,0x10,0x10
+};
 
 int main(int argc,char **argv){
-	int num=1; char s[97]; s[0]='\0';
+	int num=1, i, y, bar, i22, peak, dispScale = 4;
+	char s[97]; s[0]='\0';
 	while(argc >=num+1 && argv[num][0]=='-'){
 		if(argv[num][1]=='i') ERROR_CHECK=0;
+		if(argv[num][1]=='s') SLOW_MODE=1;
 		if(argv[num][1]=='f') LOOP=1;
 		if(argv[num][1]=='n') NOINIT=1;
+		if(argv[num][1]=='b') BAR=1;
 		if(argv[num][1]=='r'){
 			PORT=atoi(&argv[num][2]);
 			if( PORT == 0 && argc > num+1 ){
@@ -55,6 +81,16 @@ int main(int argc,char **argv){
 			}
 			printf("reset (%d)\n",PORT);
 			i2c_hard_reset(PORT);
+		}
+		if(argv[num][1]=='q'){
+			PORT=atoi(&argv[num][2]);
+			if( PORT == 0 && argc > num+1 ){
+				num++;
+				PORT = atoi(argv[num]);
+			}
+			printf("quit (%d)\n",PORT);
+			i2c_hard_quit(PORT);
+			return 0;
 		}
 		if(argv[num][1]=='w'){
 			WIDTH=atoi(&argv[num][2]);
@@ -78,29 +114,127 @@ int main(int argc,char **argv){
 			printf("Usage:\n");
 			printf("  %s [-i] [-f] [-r port] [-w lcd_width] [-y row] [text...]\n",argv[0]);
 			printf("  echo text... | %s [-i] [-f] [-r port] [-w lcd_width] [-y row]\n",argv[0]);
-			printf("  %s -h\n\n",argv[0]);
+			printf("  %s -h # for help\n",argv[0]);
+			printf("  %s -q # for release I2C ports\n\n",argv[0]);
 			printf("    options:\n");
 			printf("      -i      ignore I2C communication errors\n");
+			printf("      -s      slowdown I2C communication mode\n");
 			printf("      -rPORT  set GPIO port number of reset LCD pin; number for PORT\n");
 			printf("      -wWIDTH set display digits; 8 or 16 for WITDH\n");
 			printf("      -yROW   set display row; 1 or 2 for ROW\n");
+			printf("      -b      display bar graph and values\n");
 			printf("      text... display text string on the LCD\n");
 			printf("      -n      skip initializing LCD\n");
 			printf("      -f      use standard input, continuously\n");
+			printf("      -qPORT  restore GPIO port and I2C ports\n");
 			printf("      -h      display this help on the terminal\n\n");
 			printf("    オプション(in Japanese):\n");
 			printf("      -i      I2C通信のエラーを無視する\n");
 			printf("      -rPORT  液晶のリセット信号用GPIOポート番号\n");
 			printf("      -wWIDTH 液晶の表示桁数8または16\n");
 			printf("      -yROW   表示行1または2\n");
+			printf("      -b      レベルメータ表示\n");
 			printf("      text... 表示したい文字列\n");
 			printf("      -n      液晶の初期化を実行しない\n");
 			printf("      -f      標準入力から待ち受けを行う（終了しない）\n");
+			printf("      -qPORT  使用していたGPIOポートの開放\n");
 			printf("      -h      本ヘルプの表示\n");
 			return 0;
 		}
 		num++;
 	}
+	/* レベルメータ用 ******************************************************* */
+	if(BAR > 0 && num < argc){
+		if( !i2c_init() ){
+			fprintf(stderr,"I2C ERROR in INIT\n");
+			if( ERROR_CHECK ) return 1;
+		}
+		if( PORT < 0 && NOINIT ){
+			i2c_lcd_set_xy(WIDTH,2);
+		}else{
+			if( !i2c_lcd_init_xy(WIDTH,2) ){
+				fprintf(stderr,"I2C ERROR in LCD_INIT\n");
+				if( ERROR_CHECK ) return 2;
+			}else printf("LCD init\n");
+			// delay(199);
+			i=64; //フォント転送バイト数
+			if(WIDTH < 16) i=32;
+			if( !i2c_lcd_set_fonts(font_lv, i) ){
+				fprintf(stderr,"I2C ERROR in LCD_Set Fonts\n");
+				if( ERROR_CHECK ) return 4;
+			}
+			printf("send %d fonts\n",i/8);
+			// delay(199);
+		}
+		for(y = ROW; y < 2; y++){
+			bar = (atoi(argv[num]) * WIDTH) / 50 - 1;
+			printf("bar=%d\n",bar);
+			for(i=0;i<WIDTH;i++){
+				i22 = i * 2 + 1;				// セルの右側に相当するレベル値
+				if(i == 0){
+					if(bar < 0) s[0] = 0x00;
+					else if(bar == 0) s[0] = 0x01;
+					else s[0] = 0x02;
+				}else if(i < bar / 2){			// セル位置がレベル未満の時
+					s[i] = 0x02;				// セルの両側を点灯
+				}else if(i == bar / 2){	// セル位置がレベル位置の時
+					if(i22 == bar) s[i] = 0x02;
+					else if (bar>0) s[i] = 0x01;
+					else s[i] = 0x00;
+				}else{							// 点灯条件に該当しないとき
+					s[i] = 0x00;				// 非点灯表示
+				}
+				if(WIDTH >= 16 && i % dispScale == 0 && s[i] < 0x04){
+					s[i] += 0x04;
+				}
+				// printf("s[%d]=%d\n",i,s[i]);
+			}
+			if( !i2c_lcd_out(y, s) ){
+				fprintf(stderr,"I2C ERROR in LCD_OUT row=2\n");
+				if( ERROR_CHECK ) return 4;
+			}
+			num++;
+			if(num >= argc){
+				// if(y==0)i2c_lcd_out(1, "                ");
+				break;
+			}
+		}
+		i2c_close();
+		/* 下記はpeak表示ありの場合
+		peak = WIDTH * 2;
+		for(i=0;i<WIDTH;i++){
+			i22 = i * 2 + 1;				// セルの右側に相当するレベル値
+			if(i < bar / 2){			// セル位置がレベル未満の時
+				s[i] = 0x02;				// セルの両側を点灯
+			}else if(i == bar / 2){	// セル位置がレベル位置の時
+				if(i22 == bar || i22 == peak){   // セルの右までの時
+					s[i] = 0x02;			// セルの両側を点灯
+				}else{						// (セルの左までの時)
+					if(i==0 && peak == 0){
+						s[i] = 0x00;		// レベルなし
+					}else{
+						s[i] = 0x01;		// セルの左側を点灯
+					}
+				}
+			}else if(i > 0 && i == peak/2){ // ピーク単独表示位置の時
+				if(i22 == peak){			// ピーク位置が右側のとき
+					s[i] = 0x03;			// セルの右側のみ単独点灯
+				}else{						// (ピーク位置が左側の時)
+					s[i] = 0x01;			// セルの左側を点灯
+				}
+			}else{							// 点灯条件に該当しないとき
+				s[i] = 0x00;				// 非点灯表示
+			}
+			if(WIDTH >= 16 && i % dispScale == 0 && s[i] < 0x04){
+				s[i] += 0x04;
+			}
+			printf("s[%d]=%d\n",i,s[i]);
+		}
+		*/
+		return 0;
+	}
+
+	/* 通常表示用 *********************************************************** */
 	if(argc==num) fgets(s,sizeof(s),stdin);
 	else while(num<argc && strlen(s)<94){
 		strncat(s,argv[num],95);
@@ -122,7 +256,7 @@ int main(int argc,char **argv){
 		else if( !i2c_lcd_init_xy(WIDTH,2) ){
 			fprintf(stderr,"I2C ERROR in LCD_INIT\n");
 			if( ERROR_CHECK ) return 2;
-		}
+		} else printf("LCD init\n");
 		if( !i2c_lcd_print(s) ){
 			fprintf(stderr,"I2C ERROR in LCD_PRINT row=1\n");
 			if( ERROR_CHECK ) return 3;
@@ -132,7 +266,7 @@ int main(int argc,char **argv){
 		else if( !i2c_lcd_init_xy(WIDTH,2) ){
 			fprintf(stderr,"I2C ERROR in LCD_INIT\n");
 			if( ERROR_CHECK ) return 2;
-		}
+		}else printf("LCD init\n");
 		if( !i2c_lcd_print2(s) ){
 			fprintf(stderr,"I2C ERROR in LCD_PRINT row=2\n");
 			if( ERROR_CHECK ) return 3;
