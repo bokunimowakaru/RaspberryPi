@@ -1,21 +1,21 @@
 #!/bin/bash
 ################################################################################
-# raspi_lcd サンプル・ソフトウェア
+# apple_pi_cpu サンプル・ソフトウェア
 #
 #                                       Copyright (c) 2022 - 2023 Wataru KUNINO
 ################################################################################
 
 # (参考) 自動起動：
 #   /etc/rc.localに追加する場合
-#       su -l pi -s /bin/bash -c /home/pi/raspi_lcd/example_cpu.sh &
+#       su -l pi -s /bin/bash -c /home/pi/RaspberryPi/gpio/apple_pi_cpu &> /dev/null &
 #       実行権限の付与が必要：
 #       $ chmod u+x /etc/rc.local ⏎
 #   crontabに追加する場合
-#       @reboot /home/pi/raspi_lcd/example_cpu.sh &
+#       @reboot /home/pi/RaspberryPi/gpio/apple_pi_cpu &> /dev/null &
 #
 
 BUTTON_IO="27"  # ボタンでシャットダウン(使用しないときは0)
-CPU_CORES=1
+CPU_CORES=4     # CPUコア数を設定(CPU負荷が除算されます)
 SECONDS=0
 MEMS=(100 100 100 100 100 100 100 100)
 
@@ -97,6 +97,7 @@ while true; do
     if [ $cpu_i -ge 80 ]; then
         echo `date4log` "[Caution] CPU負荷が高くなっています。現在、"${cpu_i}"％です。"
         wall \($0\) "CPU Load =" ${cpu_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
     fi
     if [ $cpu_i -lt 0 ]; then # 負にならないがraspi_lcdが負値に非対応
         cpu_i=0
@@ -118,6 +119,7 @@ while true; do
     if [ $temp_i -ge 80 ]; then
         echo `date4log` "[Caution] CPU温度が高くなっています。現在、"${temp_i}"℃です。"
         wall \($0\) "CPU Temperature =" ${temp_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
     fi
     /home/pi/RaspberryPi/gpio/raspi_lcd -i -n -b $temp_pt >/dev/null
     /home/pi/RaspberryPi/gpio/raspi_lcd -y2 "TMP" $temp_i "C" >/dev/null
@@ -137,14 +139,18 @@ while true; do
     if [ $SECONDS -ge 10800 ]; then #3時間経過
         SECONDS=0
         MEMS=(${MEMS[1]} ${MEMS[2]} ${MEMS[3]} ${MEMS[4]} ${MEMS[5]} ${MEMS[6]} ${MEMS[7]} $mem_i)
+        /home/pi/RaspberryPi/gpio/raspi_gpo 5 0 >/dev/null
+        /home/pi/RaspberryPi/gpio/raspi_gpo 6 0 >/dev/null
     fi
     if [ $mem_i -ge 90 ]; then
         if [ $mem_i -gt ${MEMS[1]} ]; then
             echo `date4log` "[WARNING] メモリ使用量の異常事態です。現在、"${mem_i}"％です。"
             wall \($0\) "[WARNING] Used Memory =" ${mem_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
         else
             echo `date4log` "[Caution] メモリ使用量が高くなっています。現在、"${mem_i}"％です"
             wall \($0\) "Used Memory =" ${mem_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
         fi
     fi
     /home/pi/RaspberryPi/gpio/raspi_lcd -i -n -b $mem_i >/dev/null
@@ -164,9 +170,11 @@ while true; do
         if [ $sdcap_i -ge 90 ]; then
             echo `date4log` "[WARNING] SDカード使用率の異常事態です。現在、"${sdcap_i}"です"
             wall \($0\) "[WARNING] Used Memory =" ${mem_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 6 1 >/dev/null
         else
             echo `date4log` "[Caution] SDカード使用率が"${sdcap_i}"％です"
             wall \($0\) "Used Memory =" ${mem_i}
+            /home/pi/RaspberryPi/gpio/raspi_gpo 5 1 >/dev/null
         fi
     fi
     /home/pi/RaspberryPi/gpio/raspi_lcd -i -n -b $sdcap_i >/dev/null
