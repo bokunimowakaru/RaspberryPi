@@ -7,11 +7,11 @@
 
 # (参考) 自動起動：
 #   /etc/rc.localに追加する場合
-#       su -l pi -s /bin/bash -c /home/pi/RaspberryPi/gpio/apple_pi_cpu &> /dev/null &
+#       su -l pi -s /bin/bash -c /home/pi/RaspberryPi/gpio/apple_pi_cpu.sh &> /dev/null &
 #       実行権限の付与が必要：
 #       $ chmod u+x /etc/rc.local ⏎
 #   crontabに追加する場合
-#       @reboot /home/pi/RaspberryPi/gpio/apple_pi_cpu &> /dev/null &
+#       @reboot /home/pi/RaspberryPi/gpio/apple_pi_cpu.sh &> /dev/null &
 #
 
 BUTTON_IO="27"  # ボタンでシャットダウン(使用しないときは0)
