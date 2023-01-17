@@ -18,6 +18,13 @@ BUTTON_IO="27"  # ボタンでシャットダウン(使用しないときは0)
 LCD_IO="16"                 # LCD用電源用IOポート番号を指定する
 LCD_APP="./raspi_lcd"       # LCD表示用。※要makeの実行
 LOG="/dev/stdout"           # ログファイル名(/dev/stdoutでコンソール表示)
+if [ ! -x $LCD_APP ]; then
+    LCD_APP=`which raspi_lcd`
+    if [ ! -x $LCD_APP ]; then
+        LCD_APP="/home/pi/raspi_lcd/raspi_lcd"
+        if [ ! -x $LCD_APP ]; then
+            LCD_APP="/home/pi/RaspberryPi/gpio/raspi_lcd"
+fi fi fi
 
 SECONDS=0
 MEMS=(100 100 100 100 100 100 100 100)
