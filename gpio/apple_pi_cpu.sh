@@ -43,27 +43,24 @@ button (){
     fi
 }
 button_shutdown (){
-    ret=-1
     if [ $(($BUTTON_IO)) -gt 0 ]; then
-        sleep 0.3
         button
-        ret=$?
-    fi
-    if [ $ret -eq 0 ]; then
-        echo `date4log` "[WARNING] Pressed Shutdown Button" >> $LOG 2>&1
-        $LCD_APP -i "Pressed PowerBtn"
-        sleep 2
-        if [ $(($BUTTON_IO)) -gt 0 ]; then
+        if [ $? -eq 0 ]; then
+            $LCD_APP -i `hostname -I|cut -d" " -f1` >/dev/null
+            sleep 0.5
             button
-            ret=$?
-        fi
-        if [ $ret -eq 0 ]; then
-            $LCD_APP -i "Shuting down..."
-            echo "shutdown -h now"
-            sudo shutdown -h now
-            exit 0
-        fi
-    fi
+            if [ $? -eq 0 ]; then
+                echo `date4log` "[WARNING] Pressed Shutdown Button" >> $LOG 2>&1
+                $LCD_APP -i "Pressed PowerBtn" > /dev/null
+                sleep 2
+                if [ $(($BUTTON_IO)) -gt 0 ]; then
+                    button
+                    if [ $? -eq 0 ]; then
+                        $LCD_APP -i "Shuting down..." > /dev/null
+                        echo "shutdown -h now"
+                        sudo shutdown -h now
+                        exit 0
+    fi  fi  fi  fi  fi
 }
 
 button
