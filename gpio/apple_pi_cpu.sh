@@ -20,7 +20,7 @@ LCD_APP="./raspi_lcd"       # LCD表示用。※要makeの実行
 LOG="/dev/stdout"           # ログファイル名(/dev/stdoutでコンソール表示)
 if [ ! -x $LCD_APP ]; then
     LCD_APP=`which raspi_lcd`
-    if [ ! -x $LCD_APP ]; then
+    if [ -z "${LCD_APP}" ] || [ ! -x $LCD_APP ]; then
         LCD_APP="/home/pi/raspi_lcd/raspi_lcd"
         if [ ! -x $LCD_APP ]; then
             LCD_APP="/home/pi/RaspberryPi/gpio/raspi_lcd"
