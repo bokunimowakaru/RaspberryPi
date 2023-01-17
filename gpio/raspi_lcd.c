@@ -43,6 +43,8 @@ https://bokunimo.net/git/raspi_lcd/blob/master/raspi_lcd.c
 // #include "raspi_i2c.h"  // ################### 【要注意】パス確認 ############
 #include "../libs/soft_i2c.h" // ################       元ファイル版 ############
 
+#define VER "1.01"
+
 typedef unsigned char byte;
 extern int ERROR_CHECK;				// オプション -i
 extern int SLOW_MODE;				// オプション -s
@@ -52,6 +54,7 @@ int WIDTH=8;						// オプション -wWIDTH
 int ROW=0;							// オプション -yROW
 int NOINIT=0;						// オプション -n
 int BAR=0;							// オプション -b
+int DOT=0;							// オプション -d
 
 const byte font_lv[64]={
 	0x00,0x10,0x00,0x10,0x00,0x10,0x00,0x10,
@@ -69,11 +72,14 @@ int main(int argc,char **argv){
 	// int peak;
 	char s[97]; s[0]='\0';
 	while(argc >=num+1 && argv[num][0]=='-'){
+		if(atoi(&argv[num][1]) > 0) break;
+		if(argv[num][1]=='v') {printf("Version %s\n",VER); return 0;}
 		if(argv[num][1]=='i') ERROR_CHECK=0;
 		if(argv[num][1]=='s') SLOW_MODE=1;
 		if(argv[num][1]=='f') LOOP=1;
 		if(argv[num][1]=='n') NOINIT=1;
 		if(argv[num][1]=='b') BAR=1;
+		if(argv[num][1]=='d'){DOT=1; BAR=1;}
 		if(argv[num][1]=='r'){
 			PORT=atoi(&argv[num][2]);
 			if( PORT == 0 && argc > num+1 ){
@@ -112,40 +118,46 @@ int main(int argc,char **argv){
 			printf("LCD Y (%d)\n",ROW + 1);
 		}
 		if(argv[num][1]=='h'){
-			printf("Usage:\n");
-			printf("  %s [-i] [-f] [-r port] [-w lcd_width] [-y row] [text...]\n",argv[0]);
+			printf("Usage: %s (Version %s)\n",argv[0],VER);
+			printf("  %s [-i] [-f] [-r port] [-w lcd_width] [-y row] text...\n",argv[0]);
+			printf("  %s [-i] [-f] [-r port] [-w lcd_width] [-y row] [-b|-d] value...\n",argv[0]);
 			printf("  echo text... | %s [-i] [-f] [-r port] [-w lcd_width] [-y row]\n",argv[0]);
-			printf("  %s -h # for help\n",argv[0]);
-			printf("  %s -q # for release I2C ports\n\n",argv[0]);
+			printf("  %s -h # shows this help\n",argv[0]);
+			printf("  %s -q # releases I2C ports\n\n",argv[0]);
 			printf("    options:\n");
 			printf("      -i      ignore I2C communication errors\n");
 			printf("      -s      slowdown I2C communication mode\n");
 			printf("      -rPORT  set GPIO port number of reset LCD pin; number for PORT\n");
 			printf("      -wWIDTH set display digits; 8 or 16 for WITDH\n");
 			printf("      -yROW   set display row; 1 or 2 for ROW\n");
-			printf("      -b      display bar graph and values\n");
+			printf("      -b      display bar graph\n");
+			printf("      -d      display dot graph\n");
 			printf("      text... display text string on the LCD\n");
 			printf("      -n      skip initializing LCD\n");
 			printf("      -f      use standard input, continuously\n");
 			printf("      -qPORT  restore GPIO port and I2C ports\n");
-			printf("      -h      display this help on the terminal\n\n");
+			printf("      -h      display this help on the terminal\n");
+			printf("      -v      show version (for 1.01 and greater)\n");
+			printf("\n");
 			printf("    オプション(in Japanese):\n");
 			printf("      -i      I2C通信のエラーを無視する\n");
 			printf("      -rPORT  液晶のリセット信号用GPIOポート番号\n");
 			printf("      -wWIDTH 液晶の表示桁数8または16\n");
 			printf("      -yROW   表示行1または2\n");
 			printf("      -b      レベルメータ表示\n");
+			printf("      -d      ドットメータ表示\n");
 			printf("      text... 表示したい文字列\n");
 			printf("      -n      液晶の初期化を実行しない\n");
 			printf("      -f      標準入力から待ち受けを行う（終了しない）\n");
 			printf("      -qPORT  使用していたGPIOポートの開放\n");
 			printf("      -h      本ヘルプの表示\n");
+			printf("      -v      バージョン表示(1.01～)\n");
 			return 0;
 		}
 		num++;
 	}
 	/* レベルメータ用 ******************************************************* */
-	if(BAR > 0 && num < argc){
+	if((BAR > 0 || DOT > 0) && num < argc){
 		if( !i2c_init() ){
 			fprintf(stderr,"I2C ERROR in INIT\n");
 			if( ERROR_CHECK ) return 1;
@@ -168,18 +180,20 @@ int main(int argc,char **argv){
 			// delay(199);
 		}
 		for(y = ROW; y < 2; y++){
-			bar = (atoi(argv[num]) * WIDTH) / 50 - 1;
+			bar = (atoi(argv[num]) * WIDTH) / 50 - 1 + DOT;
+			if(bar >= 2 * WIDTH) bar = 2 * WIDTH - 1;
 			printf("bar=%d\n",bar);
 			for(i=0;i<WIDTH;i++){
 				i22 = i * 2 + 1;				// セルの右側に相当するレベル値
 				if(i == 0){
-					if(bar < 0) s[0] = 0x00;
+					if(bar < 0) s[0] = 0x01;
 					else if(bar == 0) s[0] = 0x01;
-					else s[0] = 0x02;
+					else if(bar == 1) s[0] = !DOT ? 0x02 : 0x03;
+					else s[0] = !DOT ? 0x02 : 0x00;
 				}else if(i < bar / 2){			// セル位置がレベル未満の時
-					s[i] = 0x02;				// セルの両側を点灯
+					s[i] = !DOT ? 0x02 : 0x00;	// セルの両側を点灯
 				}else if(i == bar / 2){	// セル位置がレベル位置の時
-					if(i22 == bar) s[i] = 0x02;
+					if(i22 == bar) s[i] = !DOT ? 0x02 : 0x03;
 					else if (bar>0) s[i] = 0x01;
 					else s[i] = 0x00;
 				}else{							// 点灯条件に該当しないとき
