@@ -18,7 +18,8 @@ I2Cアドレス8～119（0x00～0x77）の応答を確認し、表示します�
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
-#include "../libs/soft_i2c.h"
+#include "../libs/soft_i2c.h"    // リポジトリ RaspberryPi用
+// #include "raspi_i2c.h"              // リポジトリ raspi_lcd用
 typedef unsigned char byte; 
 
 int main(int argc,char **argv){
