@@ -1,9 +1,9 @@
 #!/bin/bash
-# HALTコマンドをUDPで受信してシャットダウンする
+# HALTコマンドをUDPで受信してシャットダウンする (シャットダウン用サーバ)
 # Copyright (c) 2018 Wataru KUNINO
 
 # /etc/rc.local へ下記を追加する
-# nohup /home/pi/RaspberryPi/network/udp_halt.sh &>> /home/pi/start.log &
+# nohup /home/pi/RaspberryPi/network/udp_halt_serv.sh &>> /home/pi/start.log &
 
 echo "UDP HALTER (usage: ${0} port)"                # タイトル表示
 if [ ${#} = 1 ]                                     # 入力パラメータ数の確認
